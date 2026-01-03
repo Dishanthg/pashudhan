@@ -43,7 +43,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
     setIsGooglePickerOpen(false);
     setIsLoading(true);
     try {
-      // Simulate Google Login
+      // Simulate OAuth verification using the captured email
       await onLogin(account.email, 'google_oauth_token');
     } catch (err) {
       setError('Google Sign-In failed. Please try standard login.');

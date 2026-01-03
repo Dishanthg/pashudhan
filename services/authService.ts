@@ -21,6 +21,27 @@ const signup = (username: string, email: string, password: string): Promise<User
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             const users = getStoredUsers();
+            
+            // Handle Google Registration/Login logic consistently
+            if (password === 'google_oauth_token') {
+                const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+                if (existing) {
+                  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(existing));
+                  return resolve(existing);
+                }
+                
+                const newUser: User = {
+                    id: `user_google_${Date.now()}`,
+                    username,
+                    email,
+                    passwordHash: 'google_oauth_protected',
+                };
+                users.push(newUser);
+                storeUsers(users);
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+                return resolve(newUser);
+            }
+
             if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
                 return reject(new Error('Username already exists.'));
             }
@@ -47,6 +68,26 @@ const login = (username: string, password: string): Promise<User> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             const users = getStoredUsers();
+            
+            // If it's a google token, "username" passed is actually the email
+            if (password === 'google_oauth_token') {
+                let user = users.find(u => u.email.toLowerCase() === username.toLowerCase());
+                if (!user) {
+                    // Auto-register google users for demo/seamless experience if not found
+                    user = {
+                        id: `user_google_${Date.now()}`,
+                        username: username.split('@')[0],
+                        email: username,
+                        passwordHash: 'google_oauth_protected',
+                    };
+                    users.push(user);
+                    storeUsers(users);
+                }
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+                return resolve(user);
+            }
+
+            // Standard Login
             const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
             if (user && user.passwordHash === fakeHash(password)) {
@@ -79,6 +120,12 @@ const changePassword = (username: string, currentPassword: string, newPassword: 
             }
             
             const user = users[userIndex];
+            
+            // Prevent changing password for Google accounts
+            if (user.passwordHash === 'google_oauth_protected') {
+                return reject(new Error('Passwords for Google accounts are managed by Google.'));
+            }
+
             if (user.passwordHash !== fakeHash(currentPassword)) {
                 return reject(new Error('Incorrect current password.'));
             }
@@ -101,13 +148,10 @@ const forgotPassword = (email: string): void => {
     const users = getStoredUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (user) {
-        // In a real app, this would trigger a secure email with a reset token.
-        // For this simulation, we'll log it to the console.
         console.log(`Password reset requested for ${email}. A real email would be sent.`);
     } else {
         console.log(`Password reset requested for non-existent email: ${email}. No action taken.`);
     }
-    // We don't give feedback to the user to prevent email enumeration attacks.
 };
 
 

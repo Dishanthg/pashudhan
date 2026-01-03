@@ -48,7 +48,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
     setIsGooglePickerOpen(false);
     setIsLoading(true);
     try {
-      // Simulate Google Sign-Up/Login
+      // Simulate real Google Account creation using the captured email
       await onSignUp(account.name, account.email, 'google_oauth_token');
     } catch (err) {
       setError('Google Sign-Up failed. Please use standard form.');
