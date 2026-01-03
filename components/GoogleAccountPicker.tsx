@@ -21,7 +21,7 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
   const [selectedAcc, setSelectedAcc] = useState<GoogleAccount | null>(null);
   const [savedAccounts, setSavedAccounts] = useState<GoogleAccount[]>([]);
 
-  // Define helper functions before useEffect to avoid initialization errors
+  // Move declarations to top to fix ReferenceError
   const reset = () => {
     setView('list');
     setEmailInput('');
@@ -83,7 +83,7 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
       const updated = [selectedAcc, ...savedAccounts.filter(a => a.email !== selectedAcc.email)].slice(0, 3);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       onSelect({ name: selectedAcc.name, email: selectedAcc.email });
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -109,12 +109,12 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
         <div className="flex-grow flex flex-col overflow-y-auto">
           {view === 'loading' ? (
             <div className="flex-grow flex flex-col items-center justify-center space-y-4">
-              <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-sm font-medium text-gray-600">Signing you in...</p>
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-base font-medium text-gray-600">Signing you in...</p>
             </div>
           ) : (
             <>
-              <div className="pt-12 pb-6 px-10 text-center flex flex-col items-center">
+              <div className="pt-12 pb-6 px-8 md:px-10 text-center flex flex-col items-center">
                 <div className="mb-6">
                   <svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -126,21 +126,21 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
 
                 {view === 'list' && (
                   <>
-                    <h2 className="text-2xl font-normal text-gray-900 font-sans">Choose an account</h2>
-                    <p className="text-gray-600 mt-2 text-base">to continue to <span className="font-medium text-blue-600">Pashudhan</span></p>
+                    <h2 className="text-2xl font-normal text-gray-900">Choose an account</h2>
+                    <p className="text-gray-600 mt-2 text-base">to continue to <span className="font-semibold text-blue-600">Pashudhan</span></p>
                   </>
                 )}
 
                 {view === 'input' && (
                   <>
-                    <h2 className="text-2xl font-normal text-gray-900 font-sans">Sign in</h2>
+                    <h2 className="text-2xl font-normal text-gray-900">Sign in</h2>
                     <p className="text-gray-600 mt-2 text-base">Use your Google Account</p>
                   </>
                 )}
 
                 {view === 'consent' && selectedAcc && (
                   <>
-                    <h2 className="text-xl font-normal text-gray-900 font-sans leading-tight">Pashudhan wants to access your Google Account</h2>
+                    <h2 className="text-xl font-normal text-gray-900 leading-tight px-4">Pashudhan wants to access your Google Account</h2>
                     <div className="mt-6 flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-full border border-gray-200">
                       <img src={selectedAcc.avatar} className="w-6 h-6 rounded-full" alt="profile" />
                       <div className="text-left">
@@ -160,9 +160,9 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
                       <button
                         key={account.email}
                         onClick={() => handleAccountClick(account)}
-                        className="w-full px-10 py-4 flex items-center gap-4 hover:bg-gray-50 border-t border-gray-100 transition-colors text-left group"
+                        className="w-full px-8 md:px-10 py-4 flex items-center gap-4 hover:bg-gray-50 border-t border-gray-100 transition-colors text-left group"
                       >
-                        <img src={account.avatar} alt={account.name} className="w-8 h-8 rounded-full shadow-sm" />
+                        <img src={account.avatar} alt={account.name} className="w-10 h-10 rounded-full shadow-sm" />
                         <div className="flex-grow overflow-hidden">
                           <p className="text-sm font-medium text-gray-900 truncate">{account.name}</p>
                           <p className="text-xs text-gray-500 truncate">{account.email}</p>
@@ -172,10 +172,10 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
                     
                     <button 
                       onClick={() => setView('input')}
-                      className="w-full px-10 py-5 flex items-center gap-4 hover:bg-gray-50 border-t border-gray-100 transition-colors text-left group"
+                      className="w-full px-8 md:px-10 py-5 flex items-center gap-4 hover:bg-gray-50 border-t border-gray-100 transition-colors text-left group"
                     >
-                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                        <Icon name="plus-circle" className="w-5 h-5 text-gray-500" />
+                      <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                        <Icon name="plus-circle" className="w-6 h-6 text-gray-500" />
                       </div>
                       <p className="text-sm font-medium text-gray-900">Use another account</p>
                     </button>
@@ -183,14 +183,14 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
                 )}
 
                 {view === 'input' && (
-                  <form onSubmit={handleEmailNext} className="px-10 py-6 space-y-8">
+                  <form onSubmit={handleEmailNext} className="px-8 md:px-10 py-6 space-y-8">
                     <div className="relative">
                       <input
                         type="email"
                         value={emailInput}
                         onChange={(e) => setEmailInput(e.target.value)}
                         autoFocus
-                        className="peer w-full px-4 py-4 border border-gray-300 rounded focus:border-blue-600 focus:ring-[1px] focus:ring-blue-600 outline-none transition-all placeholder-transparent font-sans text-lg"
+                        className="peer w-full px-4 py-4 border border-gray-300 rounded focus:border-blue-600 focus:ring-[1px] focus:ring-blue-600 outline-none transition-all placeholder-transparent text-lg"
                         placeholder="Email or phone"
                         required
                       />
@@ -223,7 +223,7 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
                 )}
 
                 {view === 'consent' && (
-                  <div className="px-10 py-4 space-y-6">
+                  <div className="px-8 md:px-10 py-4 space-y-6">
                     <p className="text-gray-800 text-sm font-medium">Allow Pashudhan to:</p>
                     
                     <div className="space-y-5">
@@ -244,7 +244,7 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
                     </div>
 
                     <div className="text-[11px] text-gray-500 space-y-3 leading-relaxed">
-                      <p>You can manage this access in your Google Account settings. Pashudhan will use your data according to their <a href="#" className="text-blue-600">privacy policy</a>.</p>
+                      <p>You can manage this access in your Google Account settings. Pashudhan will use your data according to their <a href="#" className="text-blue-600 hover:underline">privacy policy</a>.</p>
                     </div>
 
                     <div className="flex justify-between items-center pt-8">
@@ -270,7 +270,7 @@ export const GoogleAccountPicker: React.FC<GoogleAccountPickerProps> = ({ isOpen
         </div>
 
         {/* Browser Footer Tray */}
-        <div className="bg-gray-50 border-t border-gray-200 px-10 py-6 md:py-5 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
+        <div className="bg-gray-50 border-t border-gray-200 px-8 md:px-10 py-6 md:py-5 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
           <div className="flex items-center gap-2">
              <div className="w-2 h-2 rounded-full bg-green-500"></div>
              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Verified Secure Connection</span>
