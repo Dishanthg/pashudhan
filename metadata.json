@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Pashudhan Web - Livestock Management",
+  "description": "A professional web-based livestock management system featuring AI-powered breed identification, herd tracking, and veterinary service localization.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}

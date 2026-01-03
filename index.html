@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pashudhan - Livestock Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-brown': {
+                '50': '#f7f4f0',
+                '100': '#ece4d9',
+                '200': '#dccfb9',
+                '300': '#c9b798',
+                '400': '#b49c76',
+                '500': '#a2835a',
+                '600': '#8f6e4a',
+                '700': '#76583f',
+                '800': '#624838',
+                '900': '#523e31',
+                '950': '#2f231c',
+              },
+              'brand-green': {
+                '50': '#f2f8f2',
+                '100': '#e2efdf',
+                '200': '#c9e2c4',
+                '300': '#a8d1a1',
+                '400': '#85bc7b',
+                '500': '#66a65b',
+                '600': '#4f8c44',
+                '700': '#3e6f36',
+                '800': '#34592f',
+                '900': '#2d4b29',
+                '950': '#162814',
+              },
+              'brand-light-blue': { '100': '#E0F2FE', '800': '#075985' },
+              'brand-light-yellow': { '100': '#FEF9C3', '800': '#854d0e' },
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 dark:bg-brand-brown-950 transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
