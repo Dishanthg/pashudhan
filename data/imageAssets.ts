@@ -1,6 +1,6 @@
 export const imageAssets = {
   breeds: {
-    gir: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?q=80&w=800&auto=format&fit=crop',
+    gir: 'https://girorganic.com/cdn/shop/articles/what-is-gir-cow-453725.jpg?v=1673547600',
     sahiwal: 'https://images.unsplash.com/photo-1508535033131-78331187bd4d?q=80&w=1200&auto=format&fit=crop',
     murrah: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1200&auto=format&fit=crop',
     redSindhi: 'https://images.unsplash.com/photo-1545468241-945781a79f32?q=80&w=800&auto=format&fit=crop',
