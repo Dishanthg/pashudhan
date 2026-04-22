@@ -5,9 +5,10 @@ import type { Language } from '../types';
 
 interface LoaderProps {
     language: Language;
+    message?: string;
 }
 
-export const Loader: React.FC<LoaderProps> = ({ language }) => {
+export const Loader: React.FC<LoaderProps> = ({ language, message }) => {
   const t = useTranslations(language);
   return (
     <div className="flex flex-col items-center justify-center p-8 space-y-4">
@@ -18,7 +19,9 @@ export const Loader: React.FC<LoaderProps> = ({ language }) => {
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       </div>
-      <p className="text-brand-brown-800 dark:text-brand-brown-200 font-semibold text-lg animate-pulse">{t.loader_analyzing}</p>
+      <p className="text-brand-brown-800 dark:text-brand-brown-200 font-semibold text-lg animate-pulse">
+        {message ?? t.loader_analyzing}
+      </p>
     </div>
   );
 };

@@ -13,55 +13,101 @@ interface DashboardProps {
   language: Language;
 }
 
-const SummaryCard: React.FC<{ title: string; value: string; colorClass: string; icon: any; imageUrl?: string }> = ({ title, value, colorClass, icon, imageUrl }) => (
-  <div className={`flex items-center p-5 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-brand-brown-800 ${colorClass} transition-transform hover:scale-[1.02] md:hover:scale-105`}>
-    <div className="mr-4 md:mr-5">
+const SummaryCard: React.FC<{
+  title: string;
+  value: string;
+  subtitle: string;
+  toneClass: string;
+  icon: React.ComponentProps<typeof Icon>['name'];
+  imageUrl?: string;
+}> = ({ title, value, subtitle, toneClass, icon, imageUrl }) => (
+  <div
+    data-reveal
+    className={`lift-card relative overflow-hidden rounded-[30px] border border-white/60 p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] dark:border-brand-brown-700 ${toneClass}`}
+  >
+    <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/40 blur-3xl"></div>
+    <div className="relative flex items-center gap-4">
       {imageUrl ? (
-        <img src={imageUrl} alt={title} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border-2 border-white shadow-md" />
+        <img
+          src={imageUrl}
+          alt={title}
+          className="h-16 w-16 rounded-[22px] border border-white/70 object-cover shadow-lg"
+        />
       ) : (
-        <div className="bg-white/50 p-2.5 md:p-3 rounded-full">
-          <Icon name={icon} className="w-6 h-6 md:w-8 md:h-8 text-brand-brown-700" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/70 shadow-lg">
+          <Icon name={icon} className="h-8 w-8 text-[#14324c]" />
         </div>
       )}
-    </div>
-    <div className="flex flex-col">
-      <span className="text-[10px] md:text-sm font-bold text-brand-brown-600 dark:text-brand-brown-300 uppercase tracking-wider">{title}</span>
-      <span className="text-2xl md:text-3xl font-black text-brand-brown-900 dark:text-brand-brown-100">{value}</span>
+      <div>
+        <p className="text-[11px] font-black uppercase tracking-[0.26em] text-brand-brown-500 dark:text-brand-brown-300">
+          {title}
+        </p>
+        <p className="mt-2 text-4xl font-black text-[#14324c] dark:text-white">{value}</p>
+        <p className="mt-2 text-sm font-medium text-brand-brown-600 dark:text-brand-brown-300">{subtitle}</p>
+      </div>
     </div>
   </div>
 );
 
-const ActionStatCard: React.FC<{ title: string; icon: any; onClick: () => void }> = ({ title, icon, onClick }) => (
-  <button 
+const ActionStatCard: React.FC<{
+  title: string;
+  description: string;
+  icon: React.ComponentProps<typeof Icon>['name'];
+  accentClass: string;
+  onClick: () => void;
+}> = ({ title, description, icon, accentClass, onClick }) => (
+  <button
+    data-reveal
     onClick={onClick}
-    className="bg-[#104b5c] p-6 md:p-8 rounded-xl border border-[#1a5d6e] flex flex-col items-center justify-center text-center shadow-md transition-all hover:bg-[#155a6e] hover:shadow-2xl group w-full"
+    className={`lift-card group relative overflow-hidden rounded-[30px] border border-white/10 p-6 text-left text-white shadow-[0_28px_70px_rgba(15,23,42,0.18)] ${accentClass}`}
   >
-    <div className="bg-white/10 p-3 md:p-4 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-      <Icon name={icon} className="w-6 h-6 md:w-8 md:h-8 text-white" />
+    <div className="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-white/10 blur-2xl"></div>
+    <div className="relative">
+      <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-[18px] bg-white/14 backdrop-blur-xl group-hover:scale-105">
+        <Icon name={icon} className="h-7 w-7" />
+      </div>
+      <h4 className="text-2xl font-black">{title}</h4>
+      <p className="mt-3 max-w-xs text-sm font-medium leading-relaxed text-white/78">{description}</p>
+      <div className="mt-8 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.26em] text-white/90">
+        Open
+        <Icon name="chevron-right" className="h-4 w-4" />
+      </div>
     </div>
-    <h4 className="text-white text-sm md:text-lg font-black uppercase tracking-widest">{title}</h4>
   </button>
 );
 
-const ExternalLinkCard: React.FC<{ title: string; description: string; imageUrl: string; url: string; buttonText: string }> = ({ title, description, imageUrl, url, buttonText }) => (
-  <div className="bg-white dark:bg-brand-brown-900 rounded-[28px] md:rounded-[32px] overflow-hidden shadow-lg border border-gray-100 dark:border-brand-brown-800 flex flex-col h-full group transition-all duration-500 hover:shadow-2xl">
-    <div className="h-48 md:h-64 overflow-hidden relative">
-      <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-      <div className="absolute inset-0 bg-black/5"></div>
-    </div>
-    <div className="p-6 md:p-10 flex flex-col flex-grow">
-      <h4 className="text-xl md:text-2xl font-black text-brand-brown-900 dark:text-brand-brown-100 mb-2 md:mb-4">{title}</h4>
-      <p className="text-brand-brown-600 dark:text-brand-brown-400 mb-6 md:mb-10 text-sm md:text-lg leading-relaxed line-clamp-3">{description}</p>
-      <div className="mt-auto">
-        <a 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex w-full md:w-auto justify-center px-6 md:px-10 py-3 md:py-3.5 bg-[#f8fafc] dark:bg-brand-brown-800 text-brand-brown-700 dark:text-brand-brown-200 text-sm md:text-base font-bold rounded-xl hover:bg-brand-green-50 hover:text-brand-green-700 transition-all border border-gray-200 dark:border-brand-brown-700"
-        >
-          {buttonText}
-        </a>
+const ExternalLinkCard: React.FC<{
+  title: string;
+  description: string;
+  imageUrl: string;
+  url: string;
+  buttonText: string;
+}> = ({ title, description, imageUrl, url, buttonText }) => (
+  <div
+    data-reveal
+    className="group lift-card shell-panel overflow-hidden rounded-[34px] border border-white/60 dark:border-brand-brown-700"
+  >
+    <div className="relative h-56 overflow-hidden">
+      <img src={imageUrl} alt={title} className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#06141d]/70 via-transparent to-transparent"></div>
+      <div className="absolute left-5 top-5 section-ribbon text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-200">
+        Public Resource
       </div>
+    </div>
+    <div className="p-7 sm:p-8">
+      <h4 className="text-2xl font-black text-[#14324c] dark:text-white">{title}</h4>
+      <p className="mt-4 text-sm font-medium leading-relaxed text-brand-brown-600 dark:text-brand-brown-300">
+        {description}
+      </p>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#14324c] px-6 py-3 text-sm font-black uppercase tracking-[0.22em] text-white shadow-lg hover:-translate-y-0.5 hover:bg-[#18405f] dark:bg-brand-green-600 dark:hover:bg-brand-green-500"
+      >
+        {buttonText}
+        <Icon name="chevron-right" className="h-4 w-4" />
+      </a>
     </div>
   </div>
 );
@@ -72,197 +118,267 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectAnimal
   const buffaloCount = herd.length - cattleCount;
 
   return (
-    <div className="animate-fade-in w-full bg-slate-50 dark:bg-brand-brown-950 overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[400px] md:h-[500px] w-full flex items-center">
-        <div className="absolute inset-0 overflow-hidden">
-          <img src={imageAssets.ui.heroBg} className="w-full h-full object-cover" alt="Background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20 md:to-transparent"></div>
-        </div>
-        
-        <div className="container mx-auto px-6 md:px-12 relative z-10 flex flex-col items-start w-full max-w-[1440px] py-12 md:py-0">
-          <div className="flex items-center gap-8 mb-6 md:mb-10">
-              <div className="bg-white p-3 md:p-5 rounded-[20px] md:rounded-[28px] shadow-2xl flex items-center group cursor-default">
-                <div className="bg-brand-green-600 p-1.5 md:p-2 rounded-lg md:rounded-xl mr-2 md:mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Icon name="cow" className="w-6 h-6 md:w-8 md:h-8 text-white" />
-                </div>
-                <span className="text-xl md:text-3xl font-black tracking-tighter text-brand-green-800 uppercase">Pashudhan</span>
-              </div>
+    <div className="w-full overflow-x-hidden pb-16 sm:pb-24">
+      <section className="main-stage px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        <div className="relative overflow-hidden rounded-[42px] sm:rounded-[56px] shadow-[0_36px_120px_rgba(15,23,42,0.16)]">
+          <div className="absolute inset-0">
+            <img src={imageAssets.ui.heroBg} className="h-full w-full object-cover" alt="Background" />
+            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(6,20,29,0.96),rgba(10,49,69,0.86)_45%,rgba(255,123,98,0.56)_100%)]"></div>
+            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-light-yellow-100/20 blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-brand-green-500/20 blur-3xl"></div>
           </div>
-          
-          <h2 className="text-3xl md:text-6xl font-black text-white mb-4 md:mb-6 tracking-tighter drop-shadow-2xl max-w-4xl leading-tight">
-            {t.hero_title}
-          </h2>
-          <p className="text-base md:text-xl text-white/80 max-w-2xl leading-relaxed font-medium drop-shadow-xl mb-8 md:mb-10 border-l-4 border-brand-green-500 pl-4 md:pl-8">
-            {t.hero_description}
-          </p>
-          
-          <button 
-            onClick={() => onNavigate('register')}
-            className="group flex items-center gap-3 md:gap-4 px-6 md:px-10 py-4 md:py-5 bg-[#104b5c] text-white text-lg md:text-xl font-black rounded-xl md:rounded-2xl shadow-2xl hover:bg-[#155a6e] transition-all transform hover:-translate-y-1 active:scale-95"
-          >
-            <Icon name="plus-circle" className="w-6 h-6 md:w-7 md:h-7" />
-            <span>Register Animal</span>
-          </button>
+
+          <div className="relative grid gap-8 px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.8fr)] lg:items-end">
+            <div data-reveal className="space-y-6">
+              <div className="section-ribbon text-[10px] font-black uppercase tracking-[0.32em] text-brand-brown-600">
+                Connected Farm Intelligence
+              </div>
+
+              <div className="hero-mesh max-w-3xl rounded-[34px] p-7 text-white sm:p-9 lg:p-10">
+                <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.28em] text-white/86 backdrop-blur-xl">
+                  Now managing {herd.length} animals
+                </div>
+                <h2 className="mt-6 text-4xl font-black leading-[0.95] text-white sm:text-5xl lg:text-6xl">
+                  {t.hero_title}
+                </h2>
+                <p className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/78 sm:text-lg">
+                  {t.hero_description}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <button
+                    onClick={() => onNavigate('register')}
+                    className="rounded-full bg-white px-6 py-3.5 text-sm font-black uppercase tracking-[0.2em] text-[#14324c] shadow-2xl hover:-translate-y-1"
+                  >
+                    Register Animal
+                  </button>
+                  <button
+                    onClick={() => onNavigate('library')}
+                    className="rounded-full border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-black uppercase tracking-[0.2em] text-white backdrop-blur-xl hover:-translate-y-1 hover:bg-white/14"
+                  >
+                    Explore Breeds
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div data-reveal className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="rounded-[28px] border border-white/12 bg-white/10 p-5 text-white shadow-xl backdrop-blur-xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/70">Total Herd</p>
+                <p className="mt-3 text-4xl font-black">{herd.length}</p>
+                <p className="mt-2 text-sm text-white/72">A live snapshot of your registered livestock.</p>
+              </div>
+              <div className="rounded-[28px] border border-white/12 bg-white/10 p-5 text-white shadow-xl backdrop-blur-xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/70">Cattle</p>
+                <p className="mt-3 text-4xl font-black">{cattleCount}</p>
+                <p className="mt-2 text-sm text-white/72">High visibility breeding and health records.</p>
+              </div>
+              <div className="rounded-[28px] border border-white/12 bg-white/10 p-5 text-white shadow-xl backdrop-blur-xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/70">Buffalo</p>
+                <p className="mt-3 text-4xl font-black">{buffaloCount}</p>
+                <p className="mt-2 text-sm text-white/72">Track production trends and core care history.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="relative z-20 w-full">
-        <div className="container mx-auto px-6 md:px-12 py-10 md:py-16 w-full max-w-[1440px]">
-          
-          {/* Welcome & Summary Section */}
-          <div className="mb-12 md:mb-20 text-center">
-              <h3 className="text-3xl md:text-5xl font-black text-[#104b5c] dark:text-brand-green-400 mb-2 md:mb-4">{t.welcome_back}</h3>
-              <p className="text-base md:text-xl text-brand-brown-600 dark:text-brand-brown-400 mb-8 md:mb-12">{t.dashboard_subtitle}</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-                  <SummaryCard 
-                    title={t.dashboard_total_herd} 
-                    value={herd.length.toString()} 
-                    colorClass="bg-[#e2efdf] dark:bg-brand-green-900/20" 
-                    icon="users"
-                  />
-                  <SummaryCard 
-                    title={t.dashboard_total_cattle} 
-                    value={cattleCount.toString()} 
-                    colorClass="bg-[#e0f2fe] dark:bg-brand-light-blue-800/10" 
-                    imageUrl={imageAssets.stats.cattle}
-                    icon="cow"
-                  />
-                  <SummaryCard 
-                    title={t.dashboard_total_buffalo} 
-                    value={buffaloCount.toString()} 
-                    colorClass="bg-[#fef9c3] dark:bg-brand-light-yellow-800/10" 
-                    imageUrl={imageAssets.stats.buffalo}
-                    icon="cow"
-                  />
+      <div className="main-stage px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14">
+        <section className="mb-14 sm:mb-20">
+          <div data-reveal className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="section-ribbon text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300">
+                Your Command Center
               </div>
+              <h3 className="mt-4 text-4xl font-black text-[#14324c] dark:text-white sm:text-5xl">{t.welcome_back}</h3>
+            </div>
+            <p className="max-w-xl text-sm font-medium leading-relaxed text-brand-brown-600 dark:text-brand-brown-300 sm:text-base">
+              {t.dashboard_subtitle}
+            </p>
           </div>
 
-          {/* Key Statistics / Quick Actions Section */}
-          <section className="mb-16 md:mb-28">
-            <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12">
-               <div className="w-2 md:w-3 h-8 md:h-10 bg-[#104b5c] rounded-full"></div>
-               <h3 className="text-2xl md:text-3xl font-black text-[#104b5c] dark:text-brand-green-400 tracking-tight">
-                  {t.stats_title}
-               </h3>
-            </div>
-            
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-              <ActionStatCard title={t.vaccinations} icon="shield-check" onClick={() => onNavigate('semen')} />
-              <ActionStatCard title={t.nav_library} icon="book-open" onClick={() => onNavigate('library')} />
-              <ActionStatCard title={t.nav_reports} icon="chart-bar" onClick={() => onNavigate('semen')} />
-              <ActionStatCard title={t.nav_vets} icon="store-front" onClick={() => onNavigate('vets')} />
-            </div>
-          </section>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <SummaryCard
+              title={t.dashboard_total_herd}
+              value={herd.length.toString()}
+              subtitle="Your complete herd, updated in real time."
+              toneClass="bg-gradient-to-br from-white via-[#fff8e8] to-[#ffe1d2] dark:from-brand-brown-900 dark:via-brand-brown-900 dark:to-brand-brown-800"
+              icon="users"
+            />
+            <SummaryCard
+              title={t.dashboard_total_cattle}
+              value={cattleCount.toString()}
+              subtitle="Cattle records with breed and profile tracking."
+              toneClass="bg-gradient-to-br from-white via-[#eef8ff] to-[#d7f0ff] dark:from-brand-brown-900 dark:via-brand-brown-900 dark:to-brand-brown-800"
+              imageUrl={imageAssets.stats.cattle}
+              icon="cow"
+            />
+            <SummaryCard
+              title={t.dashboard_total_buffalo}
+              value={buffaloCount.toString()}
+              subtitle="Buffalo inventory ready for performance analysis."
+              toneClass="bg-gradient-to-br from-white via-[#f4ffe8] to-[#e0f4ca] dark:from-brand-brown-900 dark:via-brand-brown-900 dark:to-brand-brown-800"
+              imageUrl={imageAssets.stats.buffalo}
+              icon="cow"
+            />
+          </div>
+        </section>
 
-          {/* My Herd Section */}
-          <section className="mb-16 md:mb-28">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 md:mb-16 gap-4">
-                  <div className="flex items-center gap-4 md:gap-6">
-                      <div className="w-3 md:w-4 h-10 md:h-12 bg-brand-green-500 rounded-full"></div>
-                      <h3 className="text-3xl md:text-4xl font-black text-[#104b5c] dark:text-brand-green-400 tracking-tight">
-                          {t.dashboard_my_herd}
-                      </h3>
+        <section className="mb-16 sm:mb-24">
+          <div data-reveal className="mb-8 flex items-center gap-4 sm:mb-10">
+            <div className="h-12 w-3 rounded-full bg-gradient-to-b from-brand-coral via-brand-gold to-brand-mint"></div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300">
+                Fast Actions
+              </div>
+              <h3 className="mt-2 text-3xl font-black text-[#14324c] dark:text-white sm:text-4xl">{t.stats_title}</h3>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <ActionStatCard
+              title={t.vaccinations}
+              description="Log doses, track schedules, and keep herd health timelines neat."
+              icon="shield-check"
+              accentClass="bg-[linear-gradient(145deg,#0b3f55,#116c7c_52%,#18b488)]"
+              onClick={() => onNavigate('semen')}
+            />
+            <ActionStatCard
+              title={t.nav_library}
+              description="Open the breed library and compare cattle and buffalo profiles quickly."
+              icon="book-open"
+              accentClass="bg-[linear-gradient(145deg,#14324c,#305f7a_50%,#62c3ff)]"
+              onClick={() => onNavigate('library')}
+            />
+            <ActionStatCard
+              title="Train Model"
+              description="Fine-tune the bundled breed recognizer from inside the browser."
+              icon="microscope"
+              accentClass="bg-[linear-gradient(145deg,#4c2a14,#b96f2f_52%,#ffbf47)]"
+              onClick={() => onNavigate('modelTraining')}
+            />
+            <ActionStatCard
+              title={t.nav_vets}
+              description="Find nearby veterinary help with a faster, friendlier search flow."
+              icon="store-front"
+              accentClass="bg-[linear-gradient(145deg,#5c2040,#b64567_52%,#ff7b62)]"
+              onClick={() => onNavigate('vets')}
+            />
+          </div>
+        </section>
+
+        <section className="mb-16 sm:mb-24">
+          <div data-reveal className="mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-3 rounded-full bg-gradient-to-b from-brand-mint to-brand-sky"></div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300">
+                  Live Records
+                </div>
+                <h3 className="mt-2 text-3xl font-black text-[#14324c] dark:text-white sm:text-4xl">
+                  {t.dashboard_my_herd}
+                </h3>
+              </div>
+            </div>
+            <div className="section-ribbon text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300">
+              Showing {herd.length} entries
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {herd.map(animal => (
+              <div
+                key={animal.tagId}
+                data-reveal
+                className="lift-card shell-panel overflow-hidden rounded-[36px] border border-white/70 dark:border-brand-brown-700"
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <AnimalImage animal={animal} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#06141d]/76 to-transparent"></div>
+                  <div className="absolute left-5 top-5 rounded-full bg-white/82 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-[#14324c] backdrop-blur-xl">
+                    {animal.species === 'Cattle' ? t.species_cattle : t.species_buffalo}
                   </div>
-                  <span className="text-sm md:text-xl font-bold text-gray-400">Showing {herd.length} entries</span>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-                  {herd.map(animal => (
-                      <div key={animal.tagId} className="group flex flex-col p-1 bg-white dark:bg-brand-brown-900 rounded-[32px] md:rounded-[40px] shadow-lg border border-gray-100 dark:border-brand-brown-800 hover:shadow-2xl transition-all duration-500 overflow-hidden">
-                        <div className="relative h-56 md:h-64 w-full overflow-hidden rounded-t-[30px] md:rounded-t-[38px]">
-                           <AnimalImage animal={animal} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                           <div className="absolute top-4 left-4 md:top-6 md:left-6 px-3 py-1.5 md:px-4 md:py-2 bg-white/90 backdrop-blur text-[#104b5c] font-black rounded-lg md:rounded-xl shadow-lg uppercase text-[10px] md:text-sm tracking-widest">
-                              {animal.species === 'Cattle' ? t.species_cattle : t.species_buffalo}
-                           </div>
-                        </div>
-                        <div className="p-6 md:p-8 flex-grow">
-                          <h4 className="text-2xl md:text-3xl font-black text-brand-brown-900 dark:text-brand-brown-100 mb-3 md:mb-4">{animal.breed}</h4>
-                          <div className="space-y-2 md:space-y-3 mb-6 md:mb-8">
-                             <div className="flex items-center justify-between py-1.5 md:py-2 border-b border-gray-50 dark:border-brand-brown-800">
-                                <span className="text-brand-brown-400 font-bold uppercase tracking-widest text-[10px]">{t.dashboard_animal_id}</span>
-                                <span className="text-brand-brown-900 dark:text-brand-brown-200 font-black text-base md:text-lg tabular-nums">{animal.tagId}</span>
-                             </div>
-                             <div className="flex items-center justify-between py-1.5 md:py-2">
-                                <span className="text-brand-brown-400 font-bold uppercase tracking-widest text-[10px]">Registered</span>
-                                <span className="text-brand-brown-600 dark:text-brand-brown-400 font-bold text-sm">{animal.registrationDate}</span>
-                             </div>
-                          </div>
-                          <div className="flex items-center gap-3 md:gap-4">
-                            <button 
-                              onClick={() => onSelectAnimal(animal)}
-                              className="flex-grow flex items-center justify-center gap-2 md:gap-3 py-3.5 md:py-4 text-brand-green-700 bg-brand-green-50 dark:bg-brand-brown-800 rounded-xl md:rounded-2xl font-black text-sm md:text-base hover:bg-brand-green-100 transition-all"
-                            >
-                              <Icon name="pencil" className="w-4 h-4 md:w-5 md:h-5" />
-                              View Profile
-                            </button>
-                            <button 
-                              onClick={() => onDeleteAnimal(animal.tagId)}
-                              className="p-3.5 md:p-4 text-red-400 bg-red-50 dark:bg-brand-brown-800 rounded-xl md:rounded-2xl hover:text-red-600 transition-all"
-                            >
-                              <Icon name="x-mark" className="w-5 h-5 md:w-6 md:h-6" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                  ))}
-              </div>
-          </section>
+                  <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.26em] text-white/72">Breed Profile</p>
+                      <h4 className="mt-2 text-3xl font-black text-white">{animal.breed}</h4>
+                    </div>
+                    <div className="rounded-[20px] bg-white/10 px-4 py-3 text-right text-white backdrop-blur-xl">
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/64">{t.dashboard_animal_id}</p>
+                      <p className="mt-1 text-lg font-black">#{animal.tagId}</p>
+                    </div>
+                  </div>
+                </div>
 
-          {/* External Links Section */}
-          <section className="pb-12">
-            <div className="flex items-center gap-4 md:gap-6 mb-10 md:mb-16">
-               <div className="w-3 md:w-4 h-10 md:h-12 bg-amber-500 rounded-full"></div>
-               <h3 className="text-3xl md:text-4xl font-black text-[#104b5c] dark:text-brand-green-400 tracking-tight">
-                  {t.external_links_title}
-               </h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-              <ExternalLinkCard 
-                 title="DAHD Schemes and Programmes"
-                 description="DAHD Multi-Scheme Programs pave the way for inclusive livestock growth. Explore government initiatives and subsidies."
-                 imageUrl={imageAssets.ui.dahd}
-                 url="https://dahd.gov.in/schemes-programmes"
-                 buttonText={t.visit_link}
-              />
-              <ExternalLinkCard 
-                 title="Pashupedia"
-                 description="Discovering the secrets of every animal, made simple for you. Digital encyclopedia for Indian breeds."
-                 imageUrl={imageAssets.ui.pashupedia}
-                 url="https://dahd.gov.in/pashupdia#gsc.tab=0"
-                 buttonText={t.visit_link}
-              />
-              <ExternalLinkCard 
-                 title="National Dairy Development Board"
-                 description="NDDB: Committed to rural India's socio-economic growth through cooperative dairy development."
-                 imageUrl={imageAssets.ui.nddb}
-                 url="https://www.nddb.coop/"
-                 buttonText={t.visit_link}
-              />
-            </div>
-          </section>
+                <div className="p-6 sm:p-7">
+                  <div className="grid grid-cols-2 gap-4 rounded-[26px] bg-brand-brown-50/70 p-4 dark:bg-brand-brown-800/40">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-brand-brown-400">Registered</p>
+                      <p className="mt-2 text-sm font-bold text-brand-brown-700 dark:text-brand-brown-200">{animal.registrationDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-brand-brown-400">Species</p>
+                      <p className="mt-2 text-sm font-bold text-brand-brown-700 dark:text-brand-brown-200">{animal.species}</p>
+                    </div>
+                  </div>
 
-        </div>
+                  <div className="mt-5 flex items-center gap-3">
+                    <button
+                      onClick={() => onSelectAnimal(animal)}
+                      className="flex-1 rounded-full bg-[#14324c] px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-white shadow-lg hover:-translate-y-0.5 hover:bg-[#18405f]"
+                    >
+                      View Profile
+                    </button>
+                    <button
+                      onClick={() => onDeleteAnimal(animal.tagId)}
+                      className="rounded-full bg-red-50 p-3.5 text-red-500 hover:-translate-y-0.5 hover:bg-red-100 dark:bg-brand-brown-800 dark:text-red-400"
+                    >
+                      <Icon name="x-mark" className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div data-reveal className="mb-8 flex items-center gap-4 sm:mb-12">
+            <div className="h-12 w-3 rounded-full bg-gradient-to-b from-brand-gold to-brand-coral"></div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300">
+                Explore More
+              </div>
+              <h3 className="mt-2 text-3xl font-black text-[#14324c] dark:text-white sm:text-4xl">
+                {t.external_links_title}
+              </h3>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
+            <ExternalLinkCard
+              title="DAHD Schemes and Programmes"
+              description="Explore livestock development schemes, subsidies, and official programme updates in one place."
+              imageUrl={imageAssets.ui.dahd}
+              url="https://dahd.gov.in/schemes-programmes"
+              buttonText={t.visit_link}
+            />
+            <ExternalLinkCard
+              title="Pashupedia"
+              description="Browse a digital encyclopedia of Indian breeds, field insights, and practical animal knowledge."
+              imageUrl={imageAssets.ui.pashupedia}
+              url="https://dahd.gov.in/pashupdia#gsc.tab=0"
+              buttonText={t.visit_link}
+            />
+            <ExternalLinkCard
+              title="National Dairy Development Board"
+              description="Stay connected to national dairy initiatives, cooperative resources, and sector-wide updates."
+              imageUrl={imageAssets.ui.nddb}
+              url="https://www.nddb.coop/"
+              buttonText={t.visit_link}
+            />
+          </div>
+        </section>
       </div>
-      
-      <style>{`
-        .line-clamp-3 {
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3;
-        }
-        @keyframes fade-in {
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </div>
   );
 };

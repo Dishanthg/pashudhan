@@ -1,21 +1,10 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { BreedInfo } from '../types';
-import { getBreedInfo } from '../services/geminiService';
+import { breeds } from '../data/breedData';
 import { TranslationStrings } from '../data/translations';
 import { imageStore } from '../services/imageStore';
-
-const imageFileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64String = (reader.result as string).split(',')[1];
-      resolve(base64String);
-    };
-    reader.onerror = (error) => reject(error);
-  });
-};
+import { breedClassifier } from '../services/breedClassifier';
 
 const imageFileToDataUrl = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -31,7 +20,34 @@ export const useBreedRecognition = (t: TranslationStrings) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [recognizedImage, setRecognizedImage] = useState<{ id: string; url: string } | null>(null);
+  const [modelReady, setModelReady] = useState(false);
+  const [modelSource, setModelSource] = useState<string | null>(null);
 
+  const syncModelState = useCallback(async () => {
+    await breedClassifier.loadModel();
+    const modelInfo = breedClassifier.getModelInfo();
+    setModelSource(modelInfo.source);
+    setModelReady(modelInfo.ready);
+    return modelInfo;
+  }, []);
+
+  // Initialize ML model
+  useEffect(() => {
+    const initModel = async () => {
+      try {
+        await syncModelState();
+      } catch (err) {
+        console.error('Failed to initialize ML model:', err);
+        setError('ML model initialization failed');
+      }
+    };
+
+    initModel();
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, [syncModelState]);
 
   const recognizeBreed = useCallback(async (file: File) => {
     // Basic file validation
@@ -39,7 +55,7 @@ export const useBreedRecognition = (t: TranslationStrings) => {
         setError(t.error_image_type);
         return;
     }
-    if (file.size > 4 * 1024 * 1024) { // 4MB limit
+    if (file.size > 4 * 1024 * 1024) {
         setError(t.error_image_size);
         return;
     }
@@ -53,25 +69,56 @@ export const useBreedRecognition = (t: TranslationStrings) => {
     setRecognizedImage(null);
 
     try {
-      const [base64Image, imageDataUrl] = await Promise.all([
-          imageFileToBase64(file),
-          imageFileToDataUrl(file),
-      ]);
-      
-      const breedInfo = await getBreedInfo(base64Image, file.type);
+      if (!modelReady) {
+        await syncModelState();
+      }
+
+      // Create image data URL for display
+      const imageDataUrl = await imageFileToDataUrl(file);
+
+      // Create image element for ML prediction
+      const img = new Image();
+      img.src = imageDataUrl;
+
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+
+      // Use real ML model for prediction
+      const prediction = await breedClassifier.predict(img);
+      const matchedBreed = prediction.breedInfo || breeds.find(b => b.breedName === prediction.breedName);
+
+      if (!matchedBreed) {
+        throw new Error('Matched breed metadata not found');
+      }
+
+      // Combine ML prediction with static breed data
+      const breedInfo: BreedInfo = {
+        ...matchedBreed,
+        confidenceScore: prediction.confidence,
+        confidenceReasoning: prediction.reasoning,
+        imageUrl: imageDataUrl,
+        breedName: prediction.breedName
+      };
+
       const imageId = imageStore.saveImage(imageDataUrl);
 
       setResult(breedInfo);
       setRecognizedImage({ id: imageId, url: imageDataUrl });
+      setModelSource(prediction.modelSource);
 
     } catch (err) {
       setResult(null);
       setRecognizedImage(null);
       if (err instanceof Error) {
-        if (err.message.includes('Could not identify')) {
+        if (
+          err.message.includes('not loaded') ||
+          err.message.includes('Model loading failed') ||
+          err.message.includes('reference image')
+        ) {
+          setError('ML model could not finish loading. Please try again.');
+        } else if (err.message.includes('Failed to analyze')) {
           setError(t.error_no_breed_identified);
-        } else if (err.message.includes('Failed to fetch') || err.message.includes('network')) {
-            setError(t.error_network);
         } else {
           setError(t.error_unexpected);
         }
@@ -81,7 +128,7 @@ export const useBreedRecognition = (t: TranslationStrings) => {
     } finally {
       setIsLoading(false);
     }
-  }, [t, recognizedImage]);
+  }, [t, recognizedImage, modelReady, syncModelState]);
 
   const reset = useCallback(() => {
     setResult(null);
@@ -93,5 +140,5 @@ export const useBreedRecognition = (t: TranslationStrings) => {
     setRecognizedImage(null);
   }, [recognizedImage]);
 
-  return { result, error, isLoading, recognizedImage, recognizeBreed, reset };
+  return { result, error, isLoading, recognizedImage, recognizeBreed, reset, modelReady, modelSource };
 };

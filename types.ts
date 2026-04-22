@@ -36,7 +36,10 @@ export interface VeterinaryClinic {
   name: string;
   lat: number;
   lon: number;
-  phone: string;
+  phone?: string;
+  address?: string;
+  distanceKm?: number;
+  source?: 'static' | 'osm';
 }
 
 export interface MilkEntry {
@@ -55,6 +58,6 @@ export interface VaccinationEntry {
   notes?: string;
 }
 
-export type MainView = 'dashboard' | 'register' | 'library' | 'semen' | 'vets' | 'animalProfile' | 'settings' | 'about';
+export type MainView = 'dashboard' | 'register' | 'library' | 'semen' | 'vets' | 'animalProfile' | 'settings' | 'about' | 'modelTraining';
 export type Theme = 'light' | 'dark';
 export type Language = 'en' | 'hi' | 'kn';

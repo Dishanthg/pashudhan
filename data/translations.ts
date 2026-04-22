@@ -75,7 +75,7 @@ const en: TranslationStrings = {
     about_dev_title: 'Development & Engineering', 
     about_dev_desc: 'Pashudhan is a prestige innovation project born in the labs of BMS Institute of Technology & Management. Developed by a dedicated group of engineering students, this application represents the intersection of social responsibility and technical mastery. Under the expert mentorship and guidance of our esteemed faculty members, we have engineered a solution that solves real-world agricultural complexities with production-grade Artificial Intelligence.',
     about_comp_title: 'Modern Innovation vs. Legacy Systems', 
-    about_comp_desc: 'Traditional government portals often struggle with slow manual entry and complex interfaces. Pashudhan redefines the standard by providing a "Scan-and-Register" workflow that is 5x faster. By integrating real-time health alerts, offline-first data synchronization, and instant breed identification via the Gemini API, we provide an ecosystem that empowers farmers rather than burdening them with paperwork.',
+    about_comp_desc: 'Traditional government portals often struggle with slow manual entry and complex interfaces. Pashudhan redefines the standard by providing a "Scan-and-Register" workflow that is 5x faster. By integrating real-time health alerts, offline-first data synchronization, and instant breed identification via in-app ML, we provide an ecosystem that empowers farmers rather than burdening them with paperwork.',
     nav_vaccination: 'Vaccination',
     vacc_title: 'Vaccination Records',
     vacc_subtitle: 'Manage health schedules for your herd.',

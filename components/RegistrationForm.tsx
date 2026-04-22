@@ -36,6 +36,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onBack, onAd
     error: apiError, 
     isLoading, 
     recognizedImage,
+    modelReady,
+    modelSource,
     recognizeBreed, 
     reset 
   } = useBreedRecognition(t);
@@ -130,9 +132,16 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onBack, onAd
         <div className="p-4 border-2 border-dashed border-brand-brown-200 dark:border-brand-brown-700 rounded-lg space-y-4">
           <h3 className="font-semibold text-brand-green-800 dark:text-brand-green-200">{t.reg_ai_suggestion_title}</h3>
           <p className="text-sm text-brand-brown-600 dark:text-brand-brown-400">{t.reg_ai_suggestion_desc}</p>
+          <div className="text-xs text-brand-brown-500 dark:text-brand-brown-400 space-y-1">
+            <p>Supported breeds: Gir, Sahiwal, Punganur, Red Sindhi, Tharparkar.</p>
+            <p>Model source: {modelSource === 'fine-tuned-head' ? 'fine-tuned transfer model' : 'pretrained MobileNet reference model'}</p>
+          </div>
           
           {isLoading ? (
-            <Loader language={language} />
+            <Loader
+              language={language}
+              message={modelReady ? undefined : 'Preparing AI model...'}
+            />
           ) : recognizedImage && result ? (
              <div className="flex flex-col items-start gap-4 p-4 bg-brand-green-50 dark:bg-brand-green-900/20 border border-brand-green-200 dark:border-brand-green-800 rounded-lg">
                 <div className="flex items-center gap-4 w-full">

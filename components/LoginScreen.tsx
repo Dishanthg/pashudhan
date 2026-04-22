@@ -57,15 +57,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
       {/* Fixed Background Image with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img src={imageAssets.ui.heroBg} alt="Background" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-[#1e3a8a]/60 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,20,29,0.82),rgba(20,50,76,0.55)_45%,rgba(24,180,136,0.42)_100%)] backdrop-blur-[4px]"></div>
       </div>
 
       {/* Content Wrapper */}
       <div className="relative z-10 flex flex-col min-h-full">
         {/* Header App Logo */}
-        <div className="w-full px-6 py-10 flex flex-col items-center justify-center">
+        <div className="w-full px-6 py-10 flex flex-col items-center justify-center" data-reveal>
           <div className="flex flex-col items-center group">
-            <div className="bg-white p-6 rounded-[32px] shadow-2xl mb-4 border-4 border-brand-green-500 transform transition-transform group-hover:scale-105 duration-500">
+            <div className="auth-logo-tile p-6 rounded-[32px] mb-4 border border-white/60 transform transition-transform group-hover:scale-105 duration-500">
               <Icon name="cow" className="w-16 h-16 md:w-20 md:h-20 text-brand-green-600" />
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-widest uppercase drop-shadow-lg">Pashudhan</h2>
@@ -75,15 +75,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
 
         {/* Login Box */}
         <div className="flex-grow flex items-center justify-center p-6">
-          <div className="w-full max-w-[500px] text-center">
+          <div className="auth-panel w-full max-w-[560px] px-6 py-8 sm:px-10 sm:py-10 text-center" data-reveal>
+            <div className="section-ribbon mx-auto text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500">
+              Welcome Back
+            </div>
             <h1 className="text-4xl font-bold text-white mb-2">Login</h1>
-            <p className="text-white/90 text-lg mb-10 font-medium">Enter your credentials to access your account</p>
+            <p className="text-white/80 text-lg mb-10 font-medium">Enter your credentials to access your account</p>
             
             {/* Social Login Button */}
             <button 
               type="button" 
               onClick={() => setIsGooglePickerOpen(true)}
-              className="w-full bg-white text-gray-700 font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 mb-6 transition-all hover:bg-gray-50 active:scale-95 group"
+              className="auth-secondary w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-3 mb-6 active:scale-95 group"
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
               <span className="text-lg">Continue with Google</span>
@@ -103,7 +106,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter User ID"
-                  className="w-full bg-white/5 border-2 border-white/60 rounded-xl px-4 py-4 text-white placeholder-white/50 text-xl focus:outline-none focus:border-white focus:bg-white/10 transition-all shadow-inner"
+                  className="auth-input w-full rounded-2xl px-4 py-4 text-white text-xl focus:outline-none focus:border-white transition-all"
                   disabled={isLoading}
                 />
               </div>
@@ -116,7 +119,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter Password"
-                    className="w-full bg-white/5 border-2 border-white/60 rounded-xl px-4 py-4 text-white placeholder-white/50 text-xl focus:outline-none focus:border-white focus:bg-white/10 transition-all shadow-inner"
+                    className="auth-input w-full rounded-2xl px-4 py-4 text-white text-xl focus:outline-none focus:border-white transition-all"
                     disabled={isLoading}
                   />
                   <button 
@@ -139,7 +142,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#cbd5e1] hover:bg-white text-brand-brown-900 text-2xl font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center mt-4"
+                className="auth-primary w-full text-2xl font-bold py-4 rounded-2xl transition-all transform active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center mt-4"
               >
                 {isLoading && <div className="w-6 h-6 border-4 border-brand-brown-900 border-t-transparent rounded-full animate-spin mr-3"></div>}
                 {isLoading ? "Logging In..." : "Login"}
@@ -159,8 +162,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
 
         {/* Version Info (Footer) */}
         <div className="w-full p-6 text-right mt-auto">
-          <p className="text-white/80 text-sm font-bold">Version No. 1.30</p>
-          <p className="text-white/80 text-sm font-bold">Version Date 25-09-2025</p>
+          <div className="flex flex-wrap justify-end gap-2">
+            <span className="version-chip text-white/80 text-sm font-bold">Version No. 1.30</span>
+            <span className="version-chip text-white/80 text-sm font-bold">Version Date 25-09-2025</span>
+          </div>
         </div>
       </div>
 
@@ -171,13 +176,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
       />
 
       <style>{`
-        @keyframes fade-in {
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
         .shadow-glow {
           box-shadow: 0 0 15px rgba(133, 188, 123, 0.5);
         }

@@ -17,6 +17,7 @@ import { Settings } from './components/Settings';
 import { ForgotPasswordScreen } from './components/ForgotPasswordScreen';
 import { authService } from './services/authService';
 import { imageStore } from './services/imageStore';
+import { ModelTraining } from './components/ModelTraining';
 
 type AuthView = 'login' | 'signup' | 'forgotPassword';
 
@@ -57,6 +58,37 @@ const App: React.FC = () => {
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
   }, [theme]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const revealElements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    if (revealElements.length === 0) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.16,
+        rootMargin: '0px 0px -12% 0px',
+      }
+    );
+
+    revealElements.forEach((element, index) => {
+      element.style.setProperty('--reveal-delay', `${Math.min(index * 70, 420)}ms`);
+      observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [currentUser, mainView, authView]);
 
   const handleLogin = async (username: string, password: string) => {
     const user = await authService.login(username, password);
@@ -109,22 +141,28 @@ const App: React.FC = () => {
   const renderView = () => {
     switch (mainView) {
       case 'dashboard': return <Dashboard herd={herd} onNavigate={navigateTo} onSelectAnimal={handleSelectAnimal} onDeleteAnimal={handleDeleteAnimal} language={language} />;
-      case 'register': return <div className="max-w-5xl mx-auto py-8 px-4"><RegistrationForm onBack={() => navigateTo('dashboard')} onAddAnimal={handleAddAnimal} language={language} /></div>;
-      case 'library': return <div className="max-w-5xl mx-auto py-8 px-4"><BreedDatabase onBack={() => navigateTo('dashboard')} language={language} /></div>;
-      case 'semen': return <div className="max-w-5xl mx-auto py-8 px-4"><SemenBank herd={herd} onBack={() => navigateTo('dashboard')} language={language} /></div>;
-      case 'vets': return <div className="max-w-5xl mx-auto py-8 px-4"><VetsNearby onBack={() => navigateTo('dashboard')} language={language} /></div>;
-      case 'animalProfile': return selectedAnimal ? <div className="max-w-5xl mx-auto py-8 px-4"><AnimalProfile animal={selectedAnimal} onBack={() => navigateTo('dashboard')} language={language} /></div> : null;
-      case 'settings': return <div className="max-w-5xl mx-auto py-8 px-4"><Settings user={currentUser!} onBack={() => navigateTo('dashboard')} theme={theme} onThemeToggle={() => setTheme(t => t === 'light' ? 'dark' : 'light')} language={language} onLanguageChange={setLanguage} /></div>;
-      case 'about': return <div className="max-w-5xl mx-auto py-8 px-4"><AboutUs language={language} onBack={() => navigateTo('dashboard')} /></div>;
+      case 'register': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><RegistrationForm onBack={() => navigateTo('dashboard')} onAddAnimal={handleAddAnimal} language={language} /></div>;
+      case 'library': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><BreedDatabase onBack={() => navigateTo('dashboard')} language={language} /></div>;
+      case 'semen': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><SemenBank herd={herd} onBack={() => navigateTo('dashboard')} language={language} /></div>;
+      case 'vets': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><VetsNearby onBack={() => navigateTo('dashboard')} language={language} /></div>;
+      case 'animalProfile': return selectedAnimal ? <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><AnimalProfile animal={selectedAnimal} onBack={() => navigateTo('dashboard')} language={language} /></div> : null;
+      case 'settings': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><Settings user={currentUser!} onBack={() => navigateTo('dashboard')} theme={theme} onThemeToggle={() => setTheme(t => t === 'light' ? 'dark' : 'light')} language={language} onLanguageChange={setLanguage} /></div>;
+      case 'about': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10"><AboutUs language={language} onBack={() => navigateTo('dashboard')} /></div>;
+      case 'modelTraining': return <div className="main-stage px-4 sm:px-6 lg:px-8 py-8 sm:py-10" data-reveal><ModelTraining onBack={() => navigateTo('dashboard')} /></div>;
       default: return <Dashboard herd={herd} onNavigate={navigateTo} onSelectAnimal={handleSelectAnimal} onDeleteAnimal={handleDeleteAnimal} language={language} />;
     }
   };
 
   if (!currentUser) {
       return (
-        <div className="flex flex-col min-h-screen bg-brand-brown-50 dark:bg-brand-brown-950 font-sans text-brand-brown-900 dark:text-brand-brown-200">
+        <div className="app-shell flex min-h-screen flex-col text-brand-brown-900 dark:text-brand-brown-200">
+            <div className="app-backdrop">
+              <div className="app-orb app-orb-one"></div>
+              <div className="app-orb app-orb-two"></div>
+              <div className="app-orb app-orb-three"></div>
+            </div>
             <Header isLoggedIn={false} onLogout={handleLogout} language={language} onLanguageChange={setLanguage} />
-            <main className="flex-grow flex items-center justify-center p-6">
+            <main className="relative z-10 flex-grow flex items-center justify-center p-6">
               {authView === 'login' && <LoginScreen onLogin={handleLogin} onSwitchToSignUp={() => setAuthView('signup')} onForgotPassword={() => setAuthView('forgotPassword')} language={language} />}
               {authView === 'signup' && <SignUpScreen onSignUp={handleSignUp} onSwitchToLogin={() => setAuthView('login')} language={language} />}
               {authView === 'forgotPassword' && <ForgotPasswordScreen onSwitchToLogin={() => setAuthView('login')} language={language} />}
@@ -135,7 +173,12 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-brand-brown-950 font-sans text-brand-brown-900 dark:text-brand-brown-200">
+    <div className="app-shell flex min-h-screen flex-col text-brand-brown-900 dark:text-brand-brown-200">
+        <div className="app-backdrop">
+          <div className="app-orb app-orb-one"></div>
+          <div className="app-orb app-orb-two"></div>
+          <div className="app-orb app-orb-three"></div>
+        </div>
         <Header 
           isLoggedIn={true} 
           onLogout={handleLogout} 
@@ -144,11 +187,11 @@ const App: React.FC = () => {
           onNavigate={navigateTo}
           currentView={mainView}
         />
-        <div className="w-full flex-grow">
+        <div className="relative z-10 w-full flex-grow">
             <main className="w-full">
                 {renderView()}
             </main>
-            <div className="container mx-auto px-4 pb-8 mt-12">
+            <div className="main-stage px-4 sm:px-6 lg:px-8 pb-8 mt-8 sm:mt-12">
               <DesktopFooter language={language} />
             </div>
         </div>

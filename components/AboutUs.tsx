@@ -9,10 +9,10 @@ interface AboutUsProps {
 }
 
 const InfoSection: React.FC<{ title: string; children: React.ReactNode; icon: any; variant?: 'default' | 'highlight' }> = ({ title, children, icon, variant = 'default' }) => (
-    <div className={`p-10 rounded-[40px] shadow-lg border transition-all duration-500 hover:shadow-2xl ${
+    <div data-reveal className={`lift-card p-10 rounded-[40px] shadow-lg border transition-all duration-500 ${
         variant === 'highlight' 
-        ? 'bg-brand-green-50 border-brand-green-100 dark:bg-brand-green-900/10 dark:border-brand-green-800' 
-        : 'bg-white border-gray-100 dark:bg-brand-brown-900 dark:border-brand-brown-800'
+        ? 'bg-gradient-to-br from-brand-green-50 to-white border-brand-green-100 dark:from-brand-green-900/10 dark:to-brand-brown-900 dark:border-brand-green-800' 
+        : 'shell-panel border-white/70 dark:border-brand-brown-800'
     }`}>
         <div className="flex items-center gap-6 mb-8">
             <div className={`p-4 rounded-2xl ${
@@ -29,7 +29,7 @@ const InfoSection: React.FC<{ title: string; children: React.ReactNode; icon: an
 );
 
 const ValueCard: React.FC<{ title: string; desc: string; icon: any }> = ({ title, desc, icon }) => (
-    <div className="group p-8 bg-white dark:bg-brand-brown-900 rounded-3xl border border-gray-100 dark:border-brand-brown-800 transition-all hover:-translate-y-2">
+    <div data-reveal className="group lift-card p-8 shell-panel rounded-3xl border border-white/70 dark:border-brand-brown-800">
         <Icon name={icon} className="w-10 h-10 text-brand-green-600 dark:text-brand-green-400 mb-6 group-hover:scale-110 transition-transform" />
         <h4 className="text-2xl font-black text-[#104b5c] dark:text-brand-green-400 mb-3">{title}</h4>
         <p className="text-brand-brown-600 dark:text-brand-brown-400 font-medium leading-relaxed">{desc}</p>
@@ -40,17 +40,17 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
     const t = useTranslations(language);
 
     return (
-        <div className="animate-fade-in space-y-16 pb-24">
+        <div className="space-y-16 pb-24">
             {/* Header */}
-            <div className="flex items-center">
+            <div data-reveal className="flex items-center">
                 <button
                     onClick={onBack}
-                    className="p-4 mr-6 rounded-2xl bg-white dark:bg-brand-brown-900 shadow-sm border border-gray-100 dark:border-brand-brown-800 hover:bg-brand-brown-100 transition-all"
+                    className="shell-panel p-4 mr-6 rounded-2xl border border-white/60 hover:-translate-y-1 dark:border-brand-brown-800 transition-all"
                 >
                     <Icon name="arrow-left" className="w-8 h-8 text-[#104b5c] dark:text-brand-brown-200" />
                 </button>
                 <div className="flex flex-col">
-                    <span className="text-brand-green-600 dark:text-brand-green-400 font-black uppercase tracking-widest text-sm mb-1">Our Journey</span>
+                    <span className="section-ribbon w-fit text-brand-green-600 dark:text-brand-green-400 font-black uppercase tracking-widest text-sm mb-3">Our Journey</span>
                     <h2 className="text-5xl font-black text-[#104b5c] dark:text-brand-green-400 tracking-tighter">
                         {t.nav_about}
                     </h2>
@@ -83,7 +83,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
 
             {/* Core Values Section */}
             <section className="py-12">
-                <div className="flex items-center gap-6 mb-12">
+                <div data-reveal className="flex items-center gap-6 mb-12">
                     <div className="w-3 h-10 bg-amber-500 rounded-full"></div>
                     <h3 className="text-3xl font-black text-[#104b5c] dark:text-brand-green-400">Our Core Principles</h3>
                 </div>
@@ -112,7 +112,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
             </section>
 
             {/* Comparison Section */}
-            <div className="bg-[#104b5c] rounded-[60px] p-16 text-white shadow-2xl relative overflow-hidden">
+            <div data-reveal className="bg-[#104b5c] rounded-[60px] p-16 text-white shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-green-400/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
                 
@@ -126,7 +126,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
                         </div>
                         <div className="hidden lg:block h-px flex-grow bg-white/10 mx-10"></div>
                         <div className="bg-white/10 px-8 py-4 rounded-full backdrop-blur-md border border-white/10 text-xl font-bold">
-                            Powered by Gemini 2.5
+                            Powered by Pashudhan
                         </div>
                     </div>
 
@@ -151,7 +151,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
             </div>
 
             {/* Footer Tagline */}
-            <div className="text-center py-12">
+            <div data-reveal className="text-center py-12">
                 <p className="text-brand-brown-400 font-bold uppercase tracking-[0.3em] text-sm mb-4">Final Year Engineering Project</p>
                 <div className="flex justify-center items-center gap-4">
                     <div className="h-px w-12 bg-gray-200"></div>
@@ -159,16 +159,6 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language, onBack }) => {
                     <div className="h-px w-12 bg-gray-200"></div>
                 </div>
             </div>
-
-            <style>{`
-                @keyframes fade-in {
-                    0% { opacity: 0; transform: translateY(30px); }
-                    100% { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in {
-                    animation: fade-in 1s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-            `}</style>
         </div>
     );
 };
