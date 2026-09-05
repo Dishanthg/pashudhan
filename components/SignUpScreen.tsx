@@ -4,7 +4,7 @@ import { ErrorMessage } from './ErrorMessage';
 import { useTranslations } from '../hooks/useTranslations';
 import type { Language } from '../types';
 import { imageAssets } from '../data/imageAssets';
-import { GoogleAccountPicker } from './GoogleAccountPicker';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 interface SignUpScreenProps {
   onSignUp: (username: string, email: string, password: string) => Promise<void>;
@@ -19,7 +19,6 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGooglePickerOpen, setIsGooglePickerOpen] = useState(false);
   const t = useTranslations(language);
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -44,12 +43,11 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
     }
   };
 
-  const handleGoogleSelect = async (account: { name: string, email: string }) => {
-    setIsGooglePickerOpen(false);
+  const handleGoogleCredential = async (credential: string) => {
     setIsLoading(true);
     try {
-      // Simulate real Google Account creation using the captured email
-      await onSignUp(account.name, account.email, 'google_oauth_token');
+      const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      await onSignUp(payload.name || payload.email.split('@')[0], payload.email, credential);
     } catch (err) {
       setError('Google Sign-Up failed. Please use standard form.');
     } finally {
@@ -88,14 +86,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
             <p className="text-white/80 text-lg mb-8 font-medium">Join the National Digital Livestock Mission</p>
             
             {/* Social Registration Button */}
-            <button 
-              type="button" 
-              onClick={() => setIsGooglePickerOpen(true)}
-              className="auth-secondary w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-3 mb-6 active:scale-95 group"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
-              <span className="text-lg">Continue with Google</span>
-            </button>
+            <GoogleSignInButton onCredential={handleGoogleCredential} disabled={isLoading} />
 
             <div className="flex items-center gap-4 mb-8">
               <div className="flex-grow h-px bg-white/30"></div>
@@ -111,7 +102,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Choose a username"
-                  className="auth-input w-full rounded-2xl px-4 py-3 text-white text-xl focus:outline-none focus:border-white transition-all"
+                  className="auth-input w-full rounded-lg px-4 py-3 text-slate-900 text-xl focus:outline-none focus:border-emerald-600 transition-all"
                   disabled={isLoading}
                 />
               </div>
@@ -123,7 +114,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="auth-input w-full rounded-2xl px-4 py-3 text-white text-xl focus:outline-none focus:border-white transition-all"
+                  className="auth-input w-full rounded-lg px-4 py-3 text-slate-900 text-xl focus:outline-none focus:border-emerald-600 transition-all"
                   disabled={isLoading}
                 />
               </div>
@@ -136,15 +127,15 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Create a password"
-                    className="auth-input w-full rounded-2xl px-4 py-3 text-white text-xl focus:outline-none focus:border-white transition-all"
+                    className="auth-input w-full rounded-lg px-4 py-3 pr-12 text-slate-900 text-xl focus:outline-none focus:border-emerald-600 transition-all"
                     disabled={isLoading}
                   />
                   <button 
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors"
                   >
-                    <Icon name={showPassword ? "eye" : "eye-slash"} className="w-8 h-8" />
+                    <Icon name={showPassword ? "eye" : "eye-slash"} className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -180,12 +171,6 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onSwitchTo
           </div>
         </div>
       </div>
-
-      <GoogleAccountPicker 
-        isOpen={isGooglePickerOpen} 
-        onClose={() => setIsGooglePickerOpen(false)} 
-        onSelect={handleGoogleSelect}
-      />
 
       <style>{`
         .shadow-glow {

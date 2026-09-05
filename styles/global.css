@@ -1,21 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
-
 :root {
   color-scheme: light;
-  --page-bg: #fff9f1;
-  --page-bg-alt: #f4fffb;
-  --page-surface: rgba(255, 255, 255, 0.78);
-  --page-surface-strong: rgba(255, 255, 255, 0.92);
-  --page-border: rgba(15, 23, 42, 0.08);
-  --page-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
-  --page-shadow-lg: 0 42px 140px rgba(8, 47, 73, 0.16);
-  --brand-ink: #14324c;
-  --brand-ink-soft: #4a6980;
-  --brand-mint: #18b488;
-  --brand-gold: #ffbf47;
-  --brand-coral: #ff7b62;
-  --brand-sky: #62c3ff;
-  --grid-color: rgba(20, 50, 76, 0.05);
+  --page-bg: #f5f7f8;
+  --page-bg-alt: #eef2f3;
+  --page-surface: #ffffff;
+  --page-surface-strong: #ffffff;
+  --page-border: #d9e1e4;
+  --page-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --page-shadow-lg: 0 14px 34px rgba(15, 23, 42, 0.1);
+  --brand-ink: #173f46;
+  --brand-ink-soft: #52666c;
+  --brand-mint: #087f67;
+  --brand-gold: #b7791f;
+  --brand-coral: #b84a3a;
+  --brand-sky: #256d8a;
+  --grid-color: transparent;
 }
 
 html.dark {
@@ -34,6 +32,7 @@ html.dark {
 
 html {
   scroll-behavior: smooth;
+  font-size: 18px;
 }
 
 * {
@@ -51,30 +50,24 @@ button,
 input,
 select,
 textarea {
-  font-family: 'Sora', 'Segoe UI', sans-serif;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.font-sans,
+.font-serif {
+  font-family: 'Times New Roman', Times, serif;
 }
 
 body {
   margin: 0;
   color: var(--brand-ink);
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 12%, rgba(255, 191, 71, 0.24), transparent 26%),
-    radial-gradient(circle at 84% 16%, rgba(98, 195, 255, 0.22), transparent 28%),
-    radial-gradient(circle at 78% 78%, rgba(24, 180, 136, 0.18), transparent 30%),
-    linear-gradient(180deg, var(--page-bg) 0%, var(--page-bg-alt) 56%, var(--page-bg) 100%);
+  background: var(--page-bg);
 }
 
 body::before,
 body::after {
-  content: '';
-  position: fixed;
-  border-radius: 999px;
-  pointer-events: none;
-  filter: blur(72px);
-  opacity: 0.55;
-  z-index: -1;
-  animation: drift 18s ease-in-out infinite alternate;
+  display: none;
 }
 
 body::before {
@@ -100,7 +93,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Space Grotesk', 'Sora', sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   letter-spacing: -0.035em;
 }
 
@@ -167,7 +160,7 @@ textarea:focus-visible {
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at center, black 44%, transparent 92%);
-  opacity: 0.42;
+  opacity: 0;
   z-index: -2;
 }
 
@@ -183,7 +176,7 @@ textarea:focus-visible {
   position: absolute;
   border-radius: 999px;
   filter: blur(28px);
-  opacity: 0.5;
+  opacity: 0;
   animation: drift 16s ease-in-out infinite alternate;
 }
 
@@ -214,7 +207,8 @@ textarea:focus-visible {
 }
 
 .main-stage {
-  width: min(1440px, calc(100vw - 1.5rem));
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
 }
 
@@ -222,7 +216,6 @@ textarea:focus-visible {
   background: var(--page-surface);
   border: 1px solid var(--page-border);
   box-shadow: var(--page-shadow);
-  backdrop-filter: blur(24px) saturate(160%);
 }
 
 .lift-card {
@@ -233,16 +226,14 @@ textarea:focus-visible {
 }
 
 .lift-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-3px);
   box-shadow: var(--page-shadow-lg);
 }
 
 .hero-mesh {
-  background:
-    linear-gradient(135deg, rgba(10, 28, 46, 0.88), rgba(12, 70, 80, 0.76) 52%, rgba(255, 123, 98, 0.4) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 32px 100px rgba(15, 23, 42, 0.24);
-  backdrop-filter: blur(18px) saturate(150%);
+  background: rgba(23, 63, 70, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
 }
 
 .section-ribbon {
@@ -276,14 +267,18 @@ html.dark .section-ribbon {
 }
 
 .auth-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border: 2px solid #1f2937;
+  box-shadow: none;
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.58);
+  color: #64748b;
+}
+
+.auth-input:focus {
+  border-color: #087f67;
+  box-shadow: 0 0 0 3px rgba(8, 127, 103, 0.14);
 }
 
 .auth-secondary {

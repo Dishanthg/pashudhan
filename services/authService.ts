@@ -109,6 +109,37 @@ const getCurrentUser = (): User | null => {
     return userJson ? JSON.parse(userJson) : null;
 };
 
+const loginWithGoogle = (credential: string): Promise<User> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            try {
+                const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+                if (!payload.sub || !payload.email) {
+                    throw new Error('Google did not return a valid account.');
+                }
+
+                const users = getStoredUsers();
+                let user = users.find(existingUser => existingUser.email.toLowerCase() === payload.email.toLowerCase());
+                if (!user) {
+                    user = {
+                        id: `user_google_${payload.sub}`,
+                        username: payload.name || payload.email.split('@')[0],
+                        email: payload.email,
+                        passwordHash: 'google_oauth_protected',
+                    };
+                    users.push(user);
+                    storeUsers(users);
+                }
+
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+                resolve(user);
+            } catch {
+                reject(new Error('Google Sign-In failed. Please try again.'));
+            }
+        }, MOCK_DELAY);
+    });
+};
+
 const changePassword = (username: string, currentPassword: string, newPassword: string): Promise<void> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -158,6 +189,7 @@ const forgotPassword = (email: string): void => {
 export const authService = {
     signup,
     login,
+    loginWithGoogle,
     logout,
     getCurrentUser,
     changePassword,

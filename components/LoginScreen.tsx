@@ -4,7 +4,7 @@ import { ErrorMessage } from './ErrorMessage';
 import type { Language } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { imageAssets } from '../data/imageAssets';
-import { GoogleAccountPicker } from './GoogleAccountPicker';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 interface LoginScreenProps {
   onLogin: (username: string, password: string) => Promise<void>;
@@ -19,7 +19,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGooglePickerOpen, setIsGooglePickerOpen] = useState(false);
   const t = useTranslations(language);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -39,12 +38,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
     }
   };
 
-  const handleGoogleSelect = async (account: { name: string, email: string }) => {
-    setIsGooglePickerOpen(false);
+  const handleGoogleCredential = async (credential: string) => {
     setIsLoading(true);
     try {
-      // Simulate OAuth verification using the captured email
-      await onLogin(account.email, 'google_oauth_token');
+      await onLogin('__google__', credential);
     } catch (err) {
       setError('Google Sign-In failed. Please try standard login.');
     } finally {
@@ -53,133 +50,94 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSig
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full overflow-y-auto flex flex-col font-sans z-[60]">
-      {/* Fixed Background Image with Overlay */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <img src={imageAssets.ui.heroBg} alt="Background" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,20,29,0.82),rgba(20,50,76,0.55)_45%,rgba(24,180,136,0.42)_100%)] backdrop-blur-[4px]"></div>
-      </div>
-
-      {/* Content Wrapper */}
-      <div className="relative z-10 flex flex-col min-h-full">
-        {/* Header App Logo */}
-        <div className="w-full px-6 py-10 flex flex-col items-center justify-center" data-reveal>
-          <div className="flex flex-col items-center group">
-            <div className="auth-logo-tile p-6 rounded-[32px] mb-4 border border-white/60 transform transition-transform group-hover:scale-105 duration-500">
-              <Icon name="cow" className="w-16 h-16 md:w-20 md:h-20 text-brand-green-600" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-widest uppercase drop-shadow-lg">Pashudhan</h2>
-            <div className="h-1.5 w-12 bg-brand-green-400 rounded-full mt-2 shadow-glow"></div>
+    <div className="auth-screen fixed inset-0 z-[60] overflow-y-auto">
+      <div className="auth-layout flex min-h-full w-full flex-col bg-white lg:h-full lg:min-h-0 lg:flex-row lg:overflow-hidden">
+        <aside className="auth-aside relative hidden min-h-0 w-full overflow-hidden p-10 text-white lg:flex lg:w-3/5 lg:flex-none lg:flex-col lg:justify-between xl:p-12">
+          <img src={imageAssets.ui.heroBg} alt="Cattle grazing in a field" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-[#173f46]/85"></div>
+          <div className="relative flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-[#173f46]"><Icon name="cow" className="h-6 w-6" /></span>
+            <span className="text-xl font-bold tracking-tight">Pashudhan</span>
           </div>
-        </div>
+          <div className="relative max-w-md">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">Livestock management platform</p>
+            <h2 className="text-4xl font-bold leading-tight">Simple records for healthier herds.</h2>
+            <p className="mt-5 text-base leading-7 text-white/80">Keep animal profiles, breed information, and care records organized in one dependable workspace.</p>
+          </div>
+          <p className="relative text-sm text-white/65">Trusted tools for everyday farm decisions.</p>
+        </aside>
 
-        {/* Login Box */}
-        <div className="flex-grow flex items-center justify-center p-6">
-          <div className="auth-panel w-full max-w-[560px] px-6 py-8 sm:px-10 sm:py-10 text-center" data-reveal>
-            <div className="section-ribbon mx-auto text-[10px] font-black uppercase tracking-[0.28em] text-brand-brown-500">
-              Welcome Back
-            </div>
-            <h1 className="text-4xl font-bold text-white mb-2">Login</h1>
-            <p className="text-white/80 text-lg mb-10 font-medium">Enter your credentials to access your account</p>
-            
-            {/* Social Login Button */}
-            <button 
-              type="button" 
-              onClick={() => setIsGooglePickerOpen(true)}
-              className="auth-secondary w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-3 mb-6 active:scale-95 group"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
-              <span className="text-lg">Continue with Google</span>
-            </button>
+        <main className="flex w-full flex-1 flex-col justify-center px-6 py-10 sm:px-12 lg:w-2/5 lg:flex-none lg:px-16">
+          <div className="mb-10 flex items-center gap-3 lg:hidden">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#173f46] text-white"><Icon name="cow" className="h-5 w-5" /></span>
+            <span className="text-xl font-bold tracking-tight text-[#173f46]">Pashudhan</span>
+          </div>
+          <div className="mb-8" data-reveal>
+            <p className="mb-3 text-lg font-bold uppercase tracking-[0.16em] text-emerald-700">Welcome back</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Sign in to your account</h1>
+            <p className="mt-3 text-base leading-6 text-slate-500">Access your livestock records and continue where you left off.</p>
+          </div>
 
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex-grow h-px bg-white/30"></div>
-              <span className="text-white/80 font-bold text-sm uppercase tracking-widest">or</span>
-              <div className="flex-grow h-px bg-white/30"></div>
-            </div>
+          <GoogleSignInButton onCredential={handleGoogleCredential} disabled={isLoading} />
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="text-left space-y-2">
-                <label className="text-white text-lg font-medium ml-1">User ID</label>
+          <div className="my-7 flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+            <div className="h-px flex-1 bg-slate-200"></div><span>Or sign in with</span><div className="h-px flex-1 bg-slate-200"></div>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">User ID</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter User ID"
-                  className="auth-input w-full rounded-2xl px-4 py-4 text-white text-xl focus:outline-none focus:border-white transition-all"
+                  className="auth-input w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-base text-slate-900 shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                   disabled={isLoading}
                 />
               </div>
 
-              <div className="text-left space-y-2">
-                <label className="text-white text-lg font-medium ml-1">Password</label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between"><label className="text-sm font-semibold text-slate-700">Password</label><button type="button" onClick={onForgotPassword} className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Forgot password?</button></div>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter Password"
-                    className="auth-input w-full rounded-2xl px-4 py-4 text-white text-xl focus:outline-none focus:border-white transition-all"
+                    className="auth-input w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 pr-12 text-base text-slate-900 shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                     disabled={isLoading}
                   />
                   <button 
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800"
                   >
-                    <Icon name={showPassword ? "eye" : "eye-slash"} className="w-8 h-8" />
+                    <Icon name={showPassword ? "eye" : "eye-slash"} className="h-5 w-5" />
                   </button>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center px-1">
-                <button type="button" className="text-white text-lg font-medium hover:underline">Privacy Policy</button>
-                <button type="button" onClick={onForgotPassword} className="text-white text-lg font-medium hover:underline">Forgot Password</button>
-              </div>
-
               <ErrorMessage message={error} />
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="auth-primary w-full text-2xl font-bold py-4 rounded-2xl transition-all transform active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center mt-4"
-              >
-                {isLoading && <div className="w-6 h-6 border-4 border-brand-brown-900 border-t-transparent rounded-full animate-spin mr-3"></div>}
-                {isLoading ? "Logging In..." : "Login"}
+              <button type="submit" disabled={isLoading} className="auth-primary flex w-full items-center justify-center rounded-lg bg-[#173f46] py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#0f3036] disabled:opacity-50">
+                {isLoading && <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>}
+                {isLoading ? "Signing in..." : "Sign in"}
               </button>
             </form>
 
-            <div className="mt-12 mb-8">
-              <p className="text-white text-xl">
+            <div className="mt-8 text-center">
+              <p className="text-lg font-medium text-slate-600">
                 Don't have an account?{' '}
-                <button onClick={onSwitchToSignUp} className="font-bold border-b-2 border-white hover:text-brand-green-300 hover:border-brand-green-300 transition-colors">
-                  Sign Up
+                <button onClick={onSwitchToSignUp} className="font-bold text-lg text-emerald-700 underline decoration-2 underline-offset-4 hover:text-emerald-800">
+                  Create one
                 </button>
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Version Info (Footer) */}
-        <div className="w-full p-6 text-right mt-auto">
-          <div className="flex flex-wrap justify-end gap-2">
-            <span className="version-chip text-white/80 text-sm font-bold">Version No. 1.30</span>
-            <span className="version-chip text-white/80 text-sm font-bold">Version Date 25-09-2025</span>
-          </div>
-        </div>
+          <p className="mt-12 text-center text-xs text-slate-400">Pashudhan v1.30 · Your livestock records, organized.</p>
+        </main>
       </div>
 
-      <GoogleAccountPicker 
-        isOpen={isGooglePickerOpen} 
-        onClose={() => setIsGooglePickerOpen(false)} 
-        onSelect={handleGoogleSelect}
-      />
-
-      <style>{`
-        .shadow-glow {
-          box-shadow: 0 0 15px rgba(133, 188, 123, 0.5);
-        }
-      `}</style>
     </div>
   );
 };

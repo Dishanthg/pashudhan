@@ -78,39 +78,38 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn, onLogout, language, 
   ];
 
   return (
-    <header className="sticky top-0 z-50 px-2 pt-3 sm:px-3 sm:pt-4">
+    <header className="fixed inset-x-0 top-0 z-50">
       <div className="main-stage">
-        <div className="shell-panel rounded-[30px] px-4 py-4 sm:px-6 lg:px-7 flex items-center justify-between">
+        <div className="flex min-h-[72px] items-center justify-between bg-black px-4 py-3 text-white sm:px-8 lg:px-16">
         <div className="flex items-center gap-6 lg:gap-10">
           {/* Logo Section */}
           <div className="flex items-center cursor-pointer group min-w-0" onClick={() => onNavigate('dashboard')}>
-            <div className="relative mr-3 sm:mr-4">
-              <div className="absolute -inset-1 rounded-[22px] bg-gradient-to-br from-brand-green-400 via-brand-light-yellow-100 to-brand-light-blue-100 opacity-80 blur-md"></div>
-              <div className="relative bg-[#14324c] p-3 rounded-[20px] shadow-xl group-hover:-translate-y-1 transition-transform duration-300">
-                <Icon name="cow" className="w-6 h-6 text-white" />
+              <div className="relative mr-3 sm:mr-4">
+              <div className="relative rounded-md bg-white p-2 shadow-sm group-hover:-translate-y-0.5 transition-transform duration-300">
+                <Icon name="cow" className="w-5 h-5 text-black" />
               </div>
             </div>
             <div className="min-w-0">
-              <div className="hidden sm:inline-flex section-ribbon text-[10px] font-bold uppercase tracking-[0.28em] text-brand-brown-500 dark:text-brand-brown-300 mb-2">
-                AI Livestock Studio
+              <div className="hidden sm:block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/55 mb-1">
+                Livestock management
               </div>
-              <h1 className="truncate text-2xl font-black tracking-tighter text-[#14324c] dark:text-white">{t.header_title}</h1>
+              <h1 className="truncate text-xl font-semibold tracking-tight text-white">{t.header_title}</h1>
             </div>
           </div>
 
           {/* Left-aligned Navigation Links */}
           {isLoggedIn && (
-            <nav className="hidden xl:flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-2 py-2 shadow-lg backdrop-blur-xl dark:border-brand-brown-700 dark:bg-brand-brown-900/65">
+              <nav className="hidden xl:flex items-center gap-7 px-5">
               {navLinks.map(link => {
                 const isActive = currentView === link.view;
                 return (
                   <button
                     key={link.view}
                     onClick={() => onNavigate(link.view)}
-                    className={`px-4 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
+                    className={`relative px-0 py-2 text-sm font-medium flex items-center gap-2 transition-all duration-200 ${
                       isActive 
-                        ? 'bg-gradient-to-r from-brand-green-500/15 via-brand-light-blue-100 to-brand-light-yellow-100 text-[#14324c] shadow-md dark:from-brand-green-900/40 dark:via-brand-brown-800 dark:to-brand-brown-800 dark:text-brand-green-300'
-                        : 'text-brand-brown-600 dark:text-brand-brown-400 hover:bg-white/70 dark:hover:bg-brand-brown-800'
+                        ? 'text-white after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-white'
+                        : 'text-white/70 hover:text-white'
                     }`}
                   >
                     <Icon name={link.icon} className="w-4 h-4" />
@@ -126,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn, onLogout, language, 
             <div className="relative">
                 <button 
                   onClick={() => setIsLangOpen(prev => !prev)} 
-                  className="rounded-full border border-white/60 bg-white/75 p-3 text-brand-brown-600 shadow-md backdrop-blur-xl hover:-translate-y-0.5 hover:bg-white dark:border-brand-brown-700 dark:bg-brand-brown-900/70 dark:text-brand-brown-300 dark:hover:bg-brand-brown-800 transition-all duration-200"
+                  className="rounded-full p-2 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
                   aria-label="Change Language"
                 >
                     <Icon name="globe" className="w-5 h-5" />
@@ -135,13 +134,13 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn, onLogout, language, 
             </div>
             
             {isLoggedIn ? (
-              <div className="flex items-center gap-2 pl-3 border-l border-white/50 dark:border-brand-brown-700">
+              <div className="flex items-center gap-2 pl-3">
                 <button 
                   onClick={() => onNavigate('settings')}
                   className={`p-2.5 rounded-full transition-all duration-200 ${
                     currentView === 'settings' 
-                      ? 'bg-brand-green-50 text-brand-green-700 shadow-md dark:bg-brand-green-900/30 dark:text-brand-green-300' 
-                      : 'bg-white/60 text-brand-brown-600 hover:-translate-y-0.5 hover:bg-white dark:bg-brand-brown-900/70 dark:text-brand-brown-300 dark:hover:bg-brand-brown-800'
+                      ? 'bg-white/15 text-white shadow-sm' 
+                      : 'text-white/80 hover:bg-white/10 hover:text-white'
                   }`}
                   aria-label={t.header_settings}
                 >
@@ -149,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoggedIn, onLogout, language, 
                 </button>
                 <button 
                   onClick={onLogout}
-                  className="rounded-full bg-gradient-to-r from-red-500/10 to-orange-500/10 px-5 py-2.5 text-sm font-black text-red-600 hover:-translate-y-0.5 hover:from-red-500/15 hover:to-orange-500/15 dark:text-red-400 dark:hover:bg-red-900/20 transition-all duration-200"
+                  className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/85 transition-all duration-200"
                 >
                   {t.header_logout}
                 </button>

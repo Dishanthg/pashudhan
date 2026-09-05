@@ -1,89 +1,90 @@
-# Pashudhan — In‑Browser Cattle/Buffalo Breed Identifier & Herd Manager
+# Pashudhan
 
-A compact, interview-friendly React + TypeScript demo that demonstrates
-in-browser machine learning for cattle/buffalo breed identification,
-alongside simple herd management UI. Built to show a complete client-side
-ML pipeline (data ingestion, augmentation, training, inference, and
-persistence) suitable for demos and interview walkthroughs.
+Pashudhan is a browser-based livestock management application for cattle and buffalo owners. It combines animal registration, breed recognition, breed reference information, herd records, milk production tracking, vaccination schedules, veterinary discovery, and account access in one React application.
 
-Why this project
-- Demonstrates a full in-browser ML workflow using TensorFlow.js.
-- Shows pragmatic engineering trade-offs for client-side training and
-	model persistence (IndexedDB).
-- Provides a clean React codebase with an isolated ML service layer you
-	can explain in interviews.
+## Features
 
-Highlights / Features
-- In-browser breed classifier using `@tensorflow/tfjs` (transfer-learning style).
-- Model training and demo UI: `components/ModelTraining.tsx`.
-- Dataset utilities and augmentation: `services/datasetManager.ts`.
-- ML wrapper and persistence: `services/breedClassifier.ts` (saves to IndexedDB).
-- Image store and registration flow integrating breed suggestions.
-- Lightweight React + Vite app for easy local development.
+- Username/password authentication stored locally for the demo.
+- Optional Google Identity Services sign-in using `VITE_GOOGLE_CLIENT_ID`.
+- Animal registration with tag, species, birth date, weight, vaccination notes, and photo.
+- Browser-based breed recognition for Gir, Sahiwal, Punganur, Red Sindhi, and Tharparkar.
+- Breed library with search and detailed breed information.
+- Full-screen Herd Management workspace with milk records and vaccination records on the same page.
+- Vaccination status tracking for completed, upcoming, due-soon, and overdue doses.
+- Nearby veterinary clinic lookup.
+- Browser model-training screen for creating and saving an optional classifier head.
+- English, Hindi, and Kannada interface options.
 
-Tech stack
-- React + TypeScript
-- Vite (dev server + build)
-- TensorFlow.js (`@tensorflow/tfjs`) for browser ML
-- IndexedDB (via TensorFlow.js model save/load) for persistence
+## Technology
 
-Quick start
-1. Open a terminal in the project folder (root is the folder containing `package.json`).
+- React 19 and TypeScript
+- Vite
+- TensorFlow.js and MobileNet v2
+- Tailwind-style utility classes with shared CSS in `styles/global.css`
+- Browser `localStorage` for demo users and session data
+- Browser IndexedDB through TensorFlow.js for a trained classifier head
+
+## Run locally
+
+Prerequisite: Node.js 18 or newer.
 
 ```bash
-cd D:\tmp\pashudhan\pashudhan
 npm install
-npm run dev    # starts Vite dev server (open http://localhost:3000)
+npm run dev
 ```
 
-Production build / preview
+Open `http://localhost:3000`.
+
+Create a `.env` file for Google sign-in:
+
+```env
+VITE_GOOGLE_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+```
+
+The OAuth client must be a Web application client. Add the exact local origin and deployed Vercel origin to its authorized JavaScript origins.
+
+## Production build
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Where to look (key files)
-- App entry: `index.tsx` → `App.tsx`
-- ML wrapper: `services/breedClassifier.ts`
-- Dataset utils: `services/datasetManager.ts`
-- Training UI: `components/ModelTraining.tsx`
-- Breed recognition hook used by forms: `hooks/useBreedRecognition.ts`
+For Vercel, use `npm run build` as the build command and `dist` as the output directory. Add `VITE_GOOGLE_CLIENT_ID` in the Vercel project environment variables and redeploy after changing it.
 
-Notes for demo / interview
-- The app currently ships a synthetic/demo training path — bring a
-	labeled dataset (many images per breed) to train a production model.
-- Browser training is useful for demos but has memory/CPU limits; for
-	realistic scale, perform transfer learning on a server and export a
-	compact model for client inference.
-- The model is saved to IndexedDB at `indexeddb://cattle-breed-classifier-v1`.
+## Application flow
 
-Interview talking points
-- Why client-side ML? (privacy, offline-first, demo flexibility)
-- Trade-offs: model size, latency, memory, battery usage on phones.
-- Training strategies: transfer learning, data augmentation, balanced
-	batching, early stopping, validation splits.
-- Production optimizations: quantization, pruning, model conversion to
-	TensorFlow Lite / WASM backends for mobile/edge.
+1. `index.tsx` mounts `App.tsx`.
+2. `App.tsx` owns authentication state, the active view, herd state, theme, language, and browser history.
+3. `LoginScreen` and `SignUpScreen` handle form input. `GoogleSignInButton` loads Google Identity Services and returns a credential.
+4. `Dashboard` provides the main overview and navigation.
+5. `RegistrationForm` uploads an image, calls `useBreedRecognition`, and adds the resulting animal to the in-memory herd.
+6. `HerdManagement` displays milk production and vaccination workflows together, including validation, summaries, schedules, and delete actions.
+7. `BreedDatabase`, `VetsNearby`, `AnimalProfile`, `Settings`, `AboutUs`, and `ModelTraining` provide the supporting workflows.
 
-How to contribute / next steps
-- Add a real dataset: provide a manifest or use `services/datasetManager.ts`
-	to load URLs or local uploads. Aim for 500–1000 images per breed for
-	meaningful fine-tuning.
-- Improve UX: simplify registration flows, add server-side training
-	pipeline, or provide export/import for trained models.
+## Important storage note
 
-License
-MIT — feel free to fork and adapt this for demo and interview purposes.
+This version is a browser-first demo. Users, sessions, the current herd, and herd-management records are not backed by a server database. They are local to the browser session or local storage used by the relevant feature. A production release should add a backend for users, authorization, herd records, and server-side Google token verification.
 
-Footnote
-This README is written to be shareable on LinkedIn as a concise project
-description; if you want, I can also generate a short one-paragraph
-LinkedIn post caption based on this content.
+## Breed recognition summary
 
+The recognition pipeline is documented in [ML_IMPLEMENTATION.md](ML_IMPLEMENTATION.md). In short, the app loads MobileNet v2, converts the uploaded image and breed reference images into normalized embeddings, and compares them against breed prototypes. If a saved fine-tuned head exists in IndexedDB, that head is used instead.
 
-Prerequisite: Node.js
+## Key files
 
-1. Install dependencies with `npm install`
-2. Add your API key to `.env.local`
-3. Start the app with `npm run dev`
+- `App.tsx`: application state and view routing
+- `components/RegistrationForm.tsx`: animal registration and recognition entry point
+- `hooks/useBreedRecognition.ts`: image validation, model invocation, and result state
+- `services/breedClassifier.ts`: MobileNet embeddings, prototype matching, optional training head, and persistence
+- `services/breedModelConfig.ts`: supported breeds and reference image sources
+- `services/datasetManager.ts`: reference loading, augmentation, splitting, and training statistics
+- `components/ModelTraining.tsx`: optional in-browser training workflow
+- `components/HerdManagement.tsx`: combined milk and vaccination workspace
+- `data/breedData.ts`: breed metadata shown after recognition
+
+## Limitations
+
+- Breed recognition quality depends on reference images and the uploaded photo. It is a demo classifier, not a veterinary diagnosis or official breed certification.
+- Public remote image URLs require network access and compatible CORS behavior.
+- Client-side JWT decoding is not a substitute for server-side Google token verification.
+- Browser model training can use substantial memory and may be slow on mobile devices.

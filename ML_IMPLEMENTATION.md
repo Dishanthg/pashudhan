@@ -1,348 +1,169 @@
-# 🤖 Production ML Implementation Guide
+# Breed Recognition Implementation
 
-## Overview
+## What the app recognizes
 
-This document covers the production ML implementation for the Pashudhan cattle breed recognition system using TensorFlow.js and real ML capabilities.
+The current classifier supports five labels configured in `services/breedModelConfig.ts`:
 
-## Steps Completed ✅
+- Gir
+- Sahiwal
+- Punganur
+- Red Sindhi
+- Tharparkar
 
-### Step 1: Install Real TensorFlow.js ✓
-- ✅ TensorFlow.js 4.20.0 installed
-- ✅ TensorFlow.js Vis 1.5.1 installed
-- ✅ Ready for real ML operations
+The breed library contains more reference information, but only these five labels are used by the recognition model.
 
-### Step 2: Replace Mock with Real Model ✓
+## Runtime pipeline
 
-#### Model Architecture
-```
-Input (224x224x3)
-    ↓
-Conv2D (32 filters) → ReLU
-MaxPooling2D (2x2)
-    ↓
-Conv2D (64 filters) → ReLU
-MaxPooling2D (2x2)
-    ↓
-Conv2D (128 filters) → ReLU
-MaxPooling2D (2x2)
-    ↓
-GlobalAveragePooling2D
-    ↓
-Dense (256 units) → ReLU → Dropout(0.5)
-    ↓
-Dense (128 units) → ReLU → Dropout(0.3)
-    ↓
-Dense (5 units) → Softmax (Breed classes)
-```
+The recognition flow starts in `components/RegistrationForm.tsx`:
 
-#### Key Features:
-- **Transfer Learning**: Uses proven deep learning architecture
-- **Regularization**: L2 kernel regularizers prevent overfitting
-- **Dropout**: 50% and 30% dropout for robustness
-- **Optimization**: Adam optimizer with learning rate 0.001
-- **Loss**: Categorical cross-entropy for multi-class classification
+1. The user selects or captures an image through `FileUpload`.
+2. `useBreedRecognition` validates that the file is an image and is no larger than 4 MB.
+3. The file is converted to a data URL and loaded into an `HTMLImageElement`.
+4. `breedClassifier.loadModel()` initializes TensorFlow.js and loads MobileNet v2.
+5. The classifier checks IndexedDB for a saved fine-tuned classification head.
+6. The image is converted into a normalized MobileNet embedding.
+7. The embedding is classified using either the saved head or reference prototypes.
+8. The top label, confidence, alternatives, reasoning, model source, and image preview are returned to the form.
+9. The result fills the breed field and the uploaded image is stored by `imageStore` when the animal is registered.
 
-### Step 3: Dataset Collection & Management ✓
+The prediction result is metadata from `data/breedData.ts` combined with the model's predicted label and confidence. The metadata provides the breed description, origin, characteristics, health information, lifespan, diet, temperament, milk yield, and draught capacity.
 
-#### Created DatasetManager with:
+## Default prediction mode: reference prototypes
 
-**Load Real Images**
-```typescript
-await datasetManager.loadRealDataset([
-  { url: 'https://...gir-001.jpg', breed: 'Gir' },
-  { url: 'https://...sahiwal-001.jpg', breed: 'Sahiwal' },
-  // ... 1000+ images
-]);
-```
+When no trained head exists, the app uses a lightweight reference-prototype classifier:
 
-**Synthetic Dataset Generation**
-```typescript
-const dataset = await datasetManager.createSyntheticDataset({
-  imagesPerBreed: 100
-});
+```text
+Uploaded image
+    |
+    v
+MobileNet v2 feature extractor
+    |
+    v
+Normalized image embedding
+    |
+    +--> normalized reference embedding for Gir
+    +--> normalized reference embedding for Sahiwal
+    +--> normalized reference embedding for Punganur
+    +--> normalized reference embedding for Red Sindhi
+    +--> normalized reference embedding for Tharparkar
+    |
+    v
+Cosine-like similarity scores -> softmax probabilities
+    |
+    v
+Top breed + confidence + two alternatives
 ```
 
-**Data Augmentation**
-- Rotation: ±15 degrees
-- Flipping: Random horizontal flip
-- Brightness: ±10% variation
-- Increases dataset by 3-4x without additional images
+Reference images are defined in `DEFAULT_REFERENCE_IMAGE_URLS`. Each breed currently has one configured reference source. The classifier creates augmented variants of each reference image by using the original image, a horizontal flip, a brighter version, and a darker version. It averages those embeddings into one normalized prototype per breed.
 
-**Dataset Splitting**
-- Maintains breed balance during split
-- Default: 80% training, 20% validation
-- Prevents data leakage between train/validation
+This mode is useful as a browser demo and fallback, but it should not be presented as a certified production-grade breed test. A single reference image per label limits generalization to different animals, poses, lighting, backgrounds, and camera quality.
 
-**Preprocessing**
-- Resize to 224x224 (standard for CNNs)
-- Normalize to [0, 1] range
-- Handle CORS for cross-origin images
+## Optional fine-tuned head
 
-### Step 4: Performance Optimization ✓
+The `ModelTraining` screen can create a small trainable classification head on top of the frozen MobileNet embeddings:
 
-#### Created ModelOptimizer with:
-
-**Model Quantization**
-- Convert float32 → int8: 4x smaller model size
-- Reduces memory usage significantly
-- Minimal accuracy loss
-- Great for mobile deployment
-
-**Model Pruning**
-- Remove weights below threshold
-- Reduces model complexity
-- Speeds up inference
-
-**Memory Management**
-- Automatic tensor cleanup
-- Monitor memory usage with `tf.memory()`
-- Prevent memory leaks during training
-
-**Progressive Loading**
-- Load models in stages
-- Show loading progress to users
-- Better UX during model initialization
-
-**WebGL Acceleration**
-- Automatic backend detection
-- Falls back to CPU if WebGL unavailable
-- 5-10x faster inference on GPU
-
-**Batch Inference**
-- Process multiple images simultaneously
-- Efficient memory utilization
-- Parallelize predictions
-
-## 🚀 Usage Examples
-
-### 1. Train on Synthetic Data (Quick Demo)
-```typescript
-import { breedClassifier } from './services/breedClassifier';
-import { datasetManager } from './services/datasetManager';
-
-// Load and initialize model
-await breedClassifier.loadModel();
-
-// Create synthetic training data
-const dataset = await datasetManager.createSyntheticDataset({
-  imagesPerBreed: 50
-});
-
-// Augment to increase diversity
-const augmented = await datasetManager.augmentDataset(dataset, 3);
-
-// Split dataset
-const { train, validation } = datasetManager.splitDataset(augmented);
-
-// Train model
-const history = await breedClassifier.trainOnData(
-  train.map(s => s.image),
-  train.map(s => s.label),
-  {
-    epochs: 10,
-    batchSize: 32,
-    validationSplit: 0.2
-  }
-);
-
-console.log('Training complete:', history);
+```text
+MobileNet embedding
+    |
+    v
+Dense layer, 128 units, ReLU, L2 regularization
+    |
+    v
+Dropout, 20%
+    |
+    v
+Dense layer, 5 units, softmax
 ```
 
-### 2. Train on Real Dataset
-```typescript
-const realImages = [
-  { url: 'https://example.com/gir-1.jpg', breed: 'Gir' },
-  { url: 'https://example.com/gir-2.jpg', breed: 'Gir' },
-  // ... more images
-];
+The training workflow in `components/ModelTraining.tsx`:
 
-const dataset = await datasetManager.loadRealDataset(realImages);
+1. Loads the configured reference images through `DatasetManager`.
+2. Augments each image with rotation, flip, and brightness changes.
+3. Reports dataset statistics and splits the samples into training and validation sets.
+4. Extracts MobileNet embeddings once for the training images.
+5. Trains the small head with Adam and categorical cross-entropy.
+6. Saves the head to browser IndexedDB at:
 
-// Train with real data
-await breedClassifier.trainOnData(
-  dataset.map(s => s.image),
-  dataset.map(s => s.label),
-  { epochs: 20, batchSize: 16 }
-);
-
-// Model automatically saved to IndexedDB
+```text
+indexeddb://cattle-breed-transfer-head-v1
 ```
 
-### 3. Make Predictions
-```typescript
-const imageElement = document.querySelector('img');
-const prediction = await breedClassifier.predict(imageElement);
+On later page loads, `BreedClassifier` attempts to restore that head. When it is available, predictions use the fine-tuned head. The training screen also provides a reset action that removes the saved head and returns predictions to reference-prototype mode.
 
-console.log('Breed:', prediction.breedName);
-console.log('Confidence:', prediction.confidence + '%');
-console.log('Alternatives:', prediction.alternatives);
+## Dataset manager
+
+`services/datasetManager.ts` supports the training screen and exposes utilities for:
+
+- Loading labeled remote images with optional CORS handling.
+- Loading the configured bundled reference dataset.
+- Creating synthetic cattle drawings for development experiments.
+- Augmenting images with rotation, horizontal flip, and brightness changes.
+- Splitting samples by breed while preserving label distribution.
+- Reporting sample counts and balance statistics.
+
+Synthetic images are useful for exercising the training code, but they are not a valid substitute for real, labeled cattle photographs and should not be used to claim recognition accuracy.
+
+## Tensor and browser behavior
+
+- TensorFlow.js prefers WebGL and falls back to the available backend when WebGL is unavailable.
+- Embeddings, prototype tensors, output tensors, and trained heads are explicitly disposed where appropriate.
+- MobileNet and the classifier are loaded lazily when the recognition hook initializes.
+- Model training and saved heads are browser-local. Clearing site data removes the saved head.
+- Remote reference images must load successfully and satisfy browser CORS rules.
+
+## Accuracy and confidence
+
+The displayed confidence is a model score, not a calibrated probability or official certainty measure. Confidence can be misleading when the uploaded animal is outside the five supported breeds or when the image has poor framing, lighting, or resolution.
+
+For a production model:
+
+- Collect hundreds of verified images per breed.
+- Include multiple animals, ages, poses, seasons, cameras, and backgrounds.
+- Keep animal identities separated between training and validation sets.
+- Test on a held-out field dataset.
+- Calibrate confidence and add an explicit `unknown` or `unsupported breed` class.
+- Verify predictions against veterinary or breed-specialist review before using them for official records.
+- Move training and sensitive model management to a controlled backend or build pipeline.
+
+## Troubleshooting
+
+### The model does not load
+
+Check browser console errors, network access to the MobileNet model, IndexedDB availability, and WebGL support. Try clearing the saved model from the Model Training page or clearing site data.
+
+### Reference images fail to load
+
+Check the image URL, remote server availability, and CORS headers. A reference image that cannot be loaded prevents the prototype set from being complete.
+
+### Predictions are weak
+
+Use a clear image where the animal is visible, increase the number and variety of verified reference images, balance the dataset, and evaluate on images not used during training.
+
+## Current Implementation Explained
+
+The live application currently follows this exact path:
+
+```text
+RegistrationForm
+    -> useBreedRecognition.recognizeBreed(file)
+    -> breedClassifier.loadModel()
+    -> MobileNet v2 feature extraction
+    -> reference-prototype comparison OR saved fine-tuned head
+    -> BreedPrediction
+    -> breedData metadata
+    -> breed field auto-filled in the registration form
 ```
 
-### 4. Model Optimization
-```typescript
-import { ModelOptimizer } from './services/modelOptimizer';
+### Normal recognition
 
-// Get model size
-const size = ModelOptimizer.getModelSize(model);
-console.log(`Model size: ${size.estimatedSizeKB}KB`);
+When a user uploads an image, `RegistrationForm` passes the file to `useBreedRecognition`. The hook checks that the file is an image under 4 MB, converts it to a data URL, creates an image element, and calls `breedClassifier.predict`.
 
-// Check memory usage
-const memory = ModelOptimizer.getMemoryUsage();
-console.log('Tensors:', memory.numTensors);
+`BreedClassifier` loads MobileNet v2 as a pretrained feature extractor. It does not train MobileNet during normal recognition. Instead, it converts the uploaded image into an embedding and compares that embedding with reference embeddings for Gir, Sahiwal, Punganur, Red Sindhi, and Tharparkar. The highest score becomes the predicted breed, and the next two scores are returned as alternatives.
 
-// Optimize for inference
-ModelOptimizer.configureInferenceOptimizations();
-```
+### Optional training
 
-## 📊 Dataset Recommendations
+The Model Training screen uses `DatasetManager` to load the configured reference images, create augmented versions, split the dataset, and pass the images and labels to `breedClassifier.trainOnData`. The classifier extracts MobileNet embeddings and trains only a small five-class head. That head is saved in browser IndexedDB and automatically loaded during later predictions.
 
-### For Production:
-- **Minimum**: 100 images per breed (500 total)
-- **Good**: 500 images per breed (2,500 total)
-- **Excellent**: 1,000+ images per breed (5,000+ total)
+### Current storage and limitations
 
-### Image Requirements:
-- **Format**: JPG, PNG, WebP
-- **Size**: 224x224 or larger (auto-resized)
-- **Lighting**: Varied conditions (important!)
-- **Angles**: Multiple angles per animal
-- **Backgrounds**: Natural farm settings
-
-### Breed Distribution:
-- Balance is crucial for fair accuracy
-- 90:10 imbalance = 10% accuracy drop
-- Use `getStatistics()` to check balance
-
-## 🎓 Interview Talking Points
-
-### Architecture Decisions:
-1. **Why CNN?** - Best for image classification tasks
-2. **Why MobileNet-like?** - Lightweight, fast, efficient
-3. **Why Transfer Learning?** - Reuse learned features, faster training
-4. **Why Regularization?** - Prevent overfitting on limited data
-5. **Why Augmentation?** - Simulate real-world variations
-
-### Performance Metrics:
-- **Inference Speed**: ~50-100ms per image (CPU), ~10-20ms (WebGL)
-- **Model Size**: ~2-4MB (float32), ~0.5-1MB (quantized)
-- **Memory Usage**: ~200-300MB during training
-- **Accuracy Target**: 85-95% with good dataset
-
-### ML Best Practices Demonstrated:
-- ✅ Data preprocessing and normalization
-- ✅ Train/validation split
-- ✅ Data augmentation
-- ✅ Model architecture design
-- ✅ Regularization techniques
-- ✅ Hyperparameter tuning
-- ✅ Model persistence and recovery
-- ✅ Memory and performance optimization
-
-## 🔧 Configuration & Tuning
-
-### Hyperparameters (in breedClassifier.ts):
-```typescript
-// Optimizer learning rate
-optimizer: tf.train.adam(0.001)  // Adjust for convergence speed
-
-// Regularization
-kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })  // Prevent overfitting
-
-// Dropout rates
-Dropout({ rate: 0.5 })  // First layer
-Dropout({ rate: 0.3 })  // Second layer
-```
-
-### Training Parameters (in useBreedRecognition.ts):
-```typescript
-{
-  epochs: 10,        // Number of training iterations
-  batchSize: 32,     // Samples per batch (adjust for memory)
-  validationSplit: 0.2  // Portion for validation
-}
-```
-
-### Optimization Settings (in modelOptimizer.ts):
-```typescript
-// Quantization bits
-quantizeModel(model, 8)   // 8-bit quantization
-
-// Pruning threshold
-pruneModel(model, 0.1)    // Prune 10% smallest weights
-
-// Batch inference size
-batchPredict(model, images, 8)  // Process 8 images at a time
-```
-
-## 📱 Deployment Checklist
-
-- [ ] Model trained on 500+ real images per breed
-- [ ] Validation accuracy > 85%
-- [ ] Model quantized for production
-- [ ] Memory usage tested and optimized
-- [ ] WebGL backend working on target devices
-- [ ] CORS enabled for image loading
-- [ ] IndexedDB storage for model persistence
-- [ ] Fallback to CPU backend if WebGL unavailable
-- [ ] User feedback for model loading progress
-- [ ] Error handling for prediction failures
-
-## 🐛 Troubleshooting
-
-### Model Won't Load
-```
-→ Check browser console for TensorFlow.js errors
-→ Verify IndexedDB is available and quota
-→ Try clearing browser cache and IndexedDB
-→ Check internet for pre-trained model download
-```
-
-### Out of Memory
-```
-→ Reduce batch size
-→ Quantize model to int8
-→ Reduce number of training samples
-→ Clear unused tensors with tf.disposeVariables()
-```
-
-### Poor Prediction Accuracy
-```
-→ Check dataset size (need 100+ images per breed)
-→ Verify dataset balance across breeds
-→ Try more training epochs
-→ Increase data augmentation
-→ Collect better quality images
-```
-
-### Slow Inference
-```
-→ Enable WebGL backend
-→ Quantize model
-→ Use batch predictions
-→ Reduce model size with pruning
-→ Profile with Chrome DevTools
-```
-
-## 📚 References & Resources
-
-- TensorFlow.js: https://www.tensorflow.org/js
-- TensorFlow.js Guide: https://www.tensorflow.org/js/guide
-- Model Persistence: https://www.tensorflow.org/js/guide/save_load
-- Web GPU Performance: https://www.tensorflow.org/js/guide/backend
-- Best Practices: https://www.tensorflow.org/js/tutorials
-
-## 🎯 Next Steps for Interview
-
-1. **Show dataset generation** - Run `createSyntheticDataset()`
-2. **Demonstrate training** - Use ModelTraining component
-3. **Explain architecture** - Walk through model layers
-4. **Show optimization** - Quantize and measure improvements
-5. **Deploy on mobile** - Show model works on real devices
-6. **Discuss scalability** - How to handle 10,000+ images
-7. **Explain tradeoffs** - Accuracy vs speed vs model size
-
----
-
-**Created**: April 22, 2026
-**Status**: Production Ready ✅
-**Last Updated**: Real ML Implementation Complete
+The model head is stored locally at `indexeddb://cattle-breed-transfer-head-v1`. It is not uploaded to a server and is not shared between browsers or users. The current implementation is suitable for demonstrating an in-browser ML workflow, but recognition confidence is not an official breed certification. Production use requires a larger verified dataset, an unknown-breed class, held-out evaluation, calibrated confidence, and server-side model and account management.

@@ -120,21 +120,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectAnimal
   return (
     <div className="w-full overflow-x-hidden pb-16 sm:pb-24">
       <section className="main-stage px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        <div className="relative overflow-hidden rounded-[42px] sm:rounded-[56px] shadow-[0_36px_120px_rgba(15,23,42,0.16)]">
+        <div className="relative overflow-hidden rounded-xl border border-[#d9e1e4] shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
           <div className="absolute inset-0">
             <img src={imageAssets.ui.heroBg} className="h-full w-full object-cover" alt="Background" />
-            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(6,20,29,0.96),rgba(10,49,69,0.86)_45%,rgba(255,123,98,0.56)_100%)]"></div>
-            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-light-yellow-100/20 blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-brand-green-500/20 blur-3xl"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(23,63,70,0.97),rgba(23,63,70,0.88)_60%,rgba(8,127,103,0.72))]"></div>
           </div>
 
           <div className="relative grid gap-8 px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.8fr)] lg:items-end">
             <div data-reveal className="space-y-6">
-              <div className="section-ribbon text-[10px] font-black uppercase tracking-[0.32em] text-brand-brown-600">
-                Connected Farm Intelligence
+              <div className="section-ribbon text-[12px] font-black uppercase tracking-[0.32em] text-red-600">
+                Livestock overview
               </div>
 
-              <div className="hero-mesh max-w-3xl rounded-[34px] p-7 text-white sm:p-9 lg:p-10">
+              <div className="hero-mesh max-w-3xl rounded-lg p-7 text-white sm:p-9 lg:p-10">
                 <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.28em] text-white/86 backdrop-blur-xl">
                   Now managing {herd.length} animals
                 </div>
@@ -236,8 +234,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectAnimal
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             <ActionStatCard
-              title={t.vaccinations}
-              description="Log doses, track schedules, and keep herd health timelines neat."
+              title={t.nav_reports}
+              description="Track milk production and vaccination schedules in one workspace."
               icon="shield-check"
               accentClass="bg-[linear-gradient(145deg,#0b3f55,#116c7c_52%,#18b488)]"
               onClick={() => onNavigate('semen')}

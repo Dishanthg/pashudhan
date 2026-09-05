@@ -153,7 +153,7 @@ export const BreedDatabase: React.FC<BreedDatabaseProps> = ({ onBack, language }
   );
 
   return (
-    <div className="w-full max-w-5xl text-center animate-fade-in px-4 md:px-0">
+    <div className="min-h-[calc(100vh-76px)] w-full text-center animate-fade-in px-4 md:px-8 lg:px-12">
       <div className="flex items-center mb-6 md:mb-10">
         <button 
           onClick={onBack} 
